@@ -16,6 +16,14 @@ python:
 #    python: "3.7-dev"
 #    python: "nightly"
 
+# email notification
+notifications:
+  email:
+    recipients:
+      - 23249735@qq.com
+    on_success: never # default: change
+    on_failure: never # default: always
+
 # command to install dependencies
 install:
   - pip install -r requirements.txt
