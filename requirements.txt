@@ -151,3 +151,6 @@ XlsxWriter==0.9.6
 #xlwings==0.10.4
 #xlwt==1.2.0
 #zict==0.1.2
+####################New Added######################
+coverage==4.0.3
+python-coveralls==2.9.1
