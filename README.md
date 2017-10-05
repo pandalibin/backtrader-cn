@@ -1,12 +1,7 @@
-backtrader-cn
+backtrader-cn[![Build Status](https://travis-ci.org/pandalibin/backtrader-cn.svg?branch=master)](https://travis-ci.org/pandalibin/backtrader-cn)[![Coverage Status](https://coveralls.io/repos/github/pandalibin/backtrader-cn/badge.svg?branch=master)](https://coveralls.io/github/pandalibin/backtrader-cn?branch=master)
 ==========
-
-.. image:: https://travis-ci.org/pandalibin/backtrader-cn.png?branch=master
-   :alt: Travis-ci Build Status
-   :scale: 100%
-   :target: https://travis-ci.org/pandalibin/backtrader-cn
-
 **Note**:
 
->This project is far away from being ready now.
+* This project is being cooked now.
+
 
