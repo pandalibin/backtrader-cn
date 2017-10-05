@@ -1,10 +1,10 @@
 backtrader-cn
 ==========
 
-   :target: https://github.com/pandalibin/backtrader-cn/blob/master/LICENSE
 .. image:: https://travis-ci.org/pandalibin/backtrader-cn.png?branch=master
    :alt: Travis-ci Build Status
    :scale: 100%
+   :target: https://travis-ci.org/pandalibin/backtrader-cn
 
 **Note**:
 
