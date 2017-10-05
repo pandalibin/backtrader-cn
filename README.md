@@ -1,13 +1,12 @@
-```html
-[![Build Status](https://travis-ci.org/pandalibin/backtrader-cn.svg?branch=master)](https://travis-ci.org/pandalibin/backtrader-cn)
-```
+backtrader-cn
+==========
 
-# backtrader-cn
+   :target: https://github.com/pandalibin/backtrader-cn/blob/master/LICENSE
+.. image:: https://travis-ci.org/pandalibin/backtrader-cn.png?branch=master
+   :alt: Travis-ci Build Status
+   :scale: 100%
 
-backtrader adapted for Chinese market
+**Note**:
 
-# notes
-
-* This project is far away from being ready 
-
+>This project is far away from being ready now.
 
