@@ -5,9 +5,6 @@ class Utils(object):
     """
     Tools set for datas.
     """
-
-    DAYS_PER_YEAR = 365
-
     @classmethod
     def strip_unused_cols(cls, data, *unused_cols):
         """

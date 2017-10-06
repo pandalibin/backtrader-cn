@@ -27,20 +27,16 @@ class TsHisData(object):
 
     def init_data(self):
         """
-        Get the recent 1 year's history data when initiate the library.
+        Get all the history data when initiate the library.
         1. Connect to arctic and create the library.
-        2. Get the recent 1 year's history data from tushare and strip the unused columns.
+        2. Get all the history data from tushare and strip the unused columns.
         3. Store the data to arctic.
         :return: None
         """
         store = arctic.Arctic(self.db_addr)
         self.library = store.initialize_library(self.lib_name)
-        end = dt.datetime.now()
-        delta = dt.timedelta(days=btu.Utils.DAYS_PER_YEAR)
-        start = end - delta
         for coll_name in self.coll_names:
-            his_data = ts.get_hist_data(code=coll_name, start=dt.datetime.strftime(start, '%Y-%m-%d'),
-                                        end=dt.datetime.strftime(end, '%Y-%m-%d'), retry_count=5).sort_index()
+            his_data = ts.get_hist_data(code=coll_name, retry_count=5).sort_index()
             if len(his_data) == 0:
                 logging.warning('data of stock %s from tushare when initiation is empty' % coll_name)
                 continue
