@@ -1,4 +1,4 @@
 :orphan:
 
-.. include :: ../README.rst
+.. include :: ../README.md
 .. include :: contents.rst.inc
