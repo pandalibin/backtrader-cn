@@ -85,7 +85,7 @@ lxml==3.7.3
 #olefile==0.44
 #openpyxl==2.4.7
 #packaging==16.8
-#pandas==0.20.1
+pandas==0.20.1
 #pandocfilters==1.4.1
 #partd==0.3.8
 #pathlib2==2.2.1
