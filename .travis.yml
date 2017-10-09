@@ -22,4 +22,7 @@ install:
 
 # command to run tests
 script:
-#  - echo 'hello, world'
+  - nosetests --with-coverage --cover-package backtradercn
+
+after_success:
+  - coveralls
