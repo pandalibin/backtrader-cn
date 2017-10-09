@@ -25,4 +25,5 @@ script:
   - nosetests --with-coverage --cover-package backtradercn
 
 after_success:
-  - coveralls
+  - coveralls -h
+  - coveralls -b . -d .coverage
