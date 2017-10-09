@@ -21,6 +21,8 @@ install:
   - pip install git+https://github.com/manahl/arctic.git
 
 # command to run tests
+before_script:
+  - coverage erase
 script:
   - nosetests --with-coverage --cover-package backtradercn
 
