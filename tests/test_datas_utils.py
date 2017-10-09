@@ -14,8 +14,8 @@ class UtilsTestCase(unittest.TestCase):
         data.index = pd.date_range(start='2017-01-01', periods=2)
 
         origin_cols = ['name', 'age', 'gender', 'address']
-        unused_cols = ['address']
-        new_cols = ['name', 'age', 'gender']
+        unused_cols = ['address', 'gender']
+        new_cols = ['name', 'age']
 
         self.assertEqual(list(data.columns).sort(), origin_cols.sort())
 

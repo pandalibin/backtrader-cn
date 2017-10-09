@@ -13,4 +13,6 @@ class Utils(object):
         :param unused_cols(array): unused columns
         :return: None
         """
-        data.drop(*unused_cols, axis=1, inplace=True)
+        for unused_col in unused_cols:
+            data.drop(unused_col, axis=1, inplace=True)
+
