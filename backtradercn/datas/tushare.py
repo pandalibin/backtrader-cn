@@ -50,7 +50,7 @@ class TsHisData(object):
 
     def download_delta_data(self):
         """
-        Get today's data and append it to collection.
+        Get yesterday's data and append it to collection.
         1. Connect to arctic and get the library.
         2. Get today's history data from tushare and strip the unused columns.
         3. Store the data to arctic.
@@ -58,7 +58,9 @@ class TsHisData(object):
         """
         store = arctic.Arctic(self.db_addr)
         self.library = store[self.lib_name]
-        end = dt.datetime.now()
+        # This function is planed to be executed at each day's 8:30am,
+        # so should get last day's data as delta
+        end = dt.datetime.now() - dt.timedelta(days=1)
         start = end
         for coll_name in self.coll_names:
             his_data = ts.get_hist_data(code=coll_name, start=dt.datetime.strftime(start, '%Y-%m-%d'),
