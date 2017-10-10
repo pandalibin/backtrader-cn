@@ -27,4 +27,4 @@ script:
   - nosetests --with-coverage --cover-package backtradercn
 
 after_success:
-  - coveralls
+  - codecov
