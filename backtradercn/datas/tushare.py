@@ -34,8 +34,10 @@ class TsHisData(object):
         :return: None
         """
         store = arctic.Arctic(self.db_addr)
+        store.delete_library(self.lib_name)
         store.initialize_library(self.lib_name)
         self.library = store[self.lib_name]
+
         for coll_name in self.coll_names:
             his_data = ts.get_hist_data(code=coll_name, retry_count=5).sort_index()
             if len(his_data) == 0:
@@ -65,7 +67,7 @@ class TsHisData(object):
                 logging.warning('delta data of stock %s from tushare is empty' % coll_name)
                 continue
 
-            btu.Utils.strip_unused_cols(his_data, *(self.unused_cols))
+            btu.Utils.strip_unused_cols(his_data, *self.unused_cols)
 
             self.library.append(coll_name, his_data)
 
