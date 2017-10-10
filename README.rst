@@ -2,8 +2,8 @@
     :target: https://travis-ci.org/pandalibin/backtrader-cn
     :alt: Build Status
 
-.. image:: https://coveralls.io/repos/github/pandalibin/backtrader-cn/badge.png?branch=master
-    :target: https://coveralls.io/github/pandalibin/backtrader-cn?branch=master
+.. image:: https://coveralls.io/repos/github/pandalibin/backtrader-cn/badge.svg
+    :target: https://coveralls.io/github/pandalibin/backtrader-cn
     :alt: Code Coverage
 
 .. image:: https://readthedocs.org/projects/backtrader-cn/badge/?version=latest
