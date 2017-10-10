@@ -44,7 +44,7 @@ class TsHisData(object):
                 logging.warning('data of stock %s from tushare when initiation is empty' % coll_name)
                 continue
 
-            btu.Utils.strip_unused_cols(his_data, *self.unused_cols)
+            his_data = btu.Utils.strip_unused_cols(his_data, *self.unused_cols)
 
             self.library.write(coll_name, his_data)
 
@@ -69,7 +69,7 @@ class TsHisData(object):
                 logging.warning('delta data of stock %s from tushare is empty' % coll_name)
                 continue
 
-            btu.Utils.strip_unused_cols(his_data, *self.unused_cols)
+            his_data = btu.Utils.strip_unused_cols(his_data, *self.unused_cols)
 
             self.library.append(coll_name, his_data)
 

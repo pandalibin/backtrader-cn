@@ -14,5 +14,7 @@ class Utils(object):
         :return: None
         """
         for unused_col in unused_cols:
-            data.drop(unused_col, axis=1, inplace=False)
+            data = data.drop(unused_col, axis=1)
+
+        return data
 

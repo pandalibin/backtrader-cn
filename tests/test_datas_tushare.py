@@ -3,6 +3,7 @@ import backtradercn.datas.tushare as bdt
 import unittest.mock as um
 import tushare
 import pandas as pd
+import datetime as dt
 
 
 class TsHisDataTestCase(unittest.TestCase):
@@ -76,7 +77,7 @@ class TsHisDataTestCase(unittest.TestCase):
         ts_his_data = bdt.TsHisData('localhost', 'ts_hist_lib', *coll_names)
 
         ts_his_data.init_data()
-
+        yesterday = dt.datetime.now() - dt.timedelta(days=1)
         mock_delta_data = pd.DataFrame(data={
             'open': 38,
             'high': 39,
@@ -92,7 +93,7 @@ class TsHisDataTestCase(unittest.TestCase):
             'v_ma10': 49,
             'v_ma20': 50,
             'turnover': 51
-        }, index=['2017-01-03'])
+        }, index=[dt.datetime.strftime(yesterday, '%Y-%m-%d')])
 
         mock_get_hist_data.return_value = mock_delta_data
 
@@ -103,6 +104,8 @@ class TsHisDataTestCase(unittest.TestCase):
 
         self.assertEqual(len(hist_data_000651), 3)
         self.assertEqual(len(hist_data_600085), 3)
+        self.assertEqual(hist_data_000651.index[-1], dt.datetime.strftime(yesterday, '%Y-%m-%d'))
+        self.assertEqual(hist_data_600085.index[-1], dt.datetime.strftime(yesterday, '%Y-%m-%d'))
 
     @um.patch('tushare.get_hist_data')
     def test_download_delta_data_no_data(self, mock_get_hist_data):
