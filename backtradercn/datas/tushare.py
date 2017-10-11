@@ -17,7 +17,7 @@ class TsHisData(object):
 
     """
 
-    def __init__(self, db_addr, lib_name, *coll_names):
+    def __init__(self, db_addr, lib_name='ts_hist_lib', *coll_names):
         self.db_addr = db_addr
         self.lib_name = lib_name
         self.coll_names = coll_names
