@@ -4,7 +4,10 @@ import pandas as pd
 
 
 class UtilsTestCase(unittest.TestCase):
-    def test_strip_unused_cols(self):
+    def test_run(self):
+        self._test_strip_unused_cols()
+
+    def _test_strip_unused_cols(self):
         data = pd.DataFrame({
             'name': ['tom', 'jack'],
             'age': [24, 56],
