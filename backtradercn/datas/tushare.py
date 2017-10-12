@@ -29,7 +29,7 @@ class TsHisData(object):
     def download_delta_data(self):
         """
         Get yesterday's data and append it to collection,
-        this method is planned to be excuted at each day's 8:30am to update the data.
+        this method is planned to be executed at each day's 8:30am to update the data.
         1. Connect to arctic and get the library.
         2. Get today's history data from tushare and strip the unused columns.
         3. Store the data to arctic.
