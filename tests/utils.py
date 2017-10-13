@@ -16,7 +16,6 @@ class Utils(unittest.TestCase):
         :param strategy(Strategy): strategy to be tested.
         :param expected_value(float): expected portofolio value after the strategy is done.
         :param expected_cash(float): expected cash after the strategy is done.
-        :param analyzer:
         :return: None
         """
 
