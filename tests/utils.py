@@ -7,6 +7,9 @@ class Utils(unittest.TestCase):
     _DATA_PATH = './datas/2006-day-001'
     _DATA = bt.feeds.BacktraderCSVData(_DATA_PATH)
 
+    def __init__(self):
+        super().__init__()
+
     def run_strategy_test(self, strategy, expected_value, expected_cash):
         """
         Test the strategy, the final portofolio vlaue should equal to the expected_value.
