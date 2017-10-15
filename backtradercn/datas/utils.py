@@ -5,6 +5,9 @@ class Utils(object):
     """
     Tools set for datas.
     """
+    # duration(year) of data got when initiate collection
+    INITIAL_DATA_YEAR = 3
+
     @classmethod
     def strip_unused_cols(cls, data, *unused_cols):
         """
