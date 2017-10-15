@@ -9,7 +9,7 @@ import logging
 class TsHisData(object):
     """
     Download and maintain history data from tushare, and provide other modules with the data.
-
+    columns: open, high, close, low, volume
     Attributes:
         db_addr(string): address of the mongodb.
         lib_name(string): name of library.
