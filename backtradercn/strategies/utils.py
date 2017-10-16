@@ -32,7 +32,6 @@ class Utils(object):
         :param target(float): target percentage of portfolio value.
         :return: None
         """
-
         strategy.order_target_percent(strategy.datas[0])
         cls.log(dt=strategy.datas[0].datetime.date(),
                 txt='Adjust position percentage to %f.' % target)

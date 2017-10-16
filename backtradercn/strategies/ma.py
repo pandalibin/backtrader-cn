@@ -46,4 +46,4 @@ class MATrendStrategy(bt.Strategy):
         """
         ts_his_data = bdt.TsHisData(coll_name)
 
-        return ts_his_data.get_data(coll_name)
+        return ts_his_data.get_data()

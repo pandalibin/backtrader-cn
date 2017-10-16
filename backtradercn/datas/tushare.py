@@ -8,13 +8,14 @@ import logging
 
 class TsHisData(object):
     """
-    Download and maintain history data from tushare, and provide other modules with the data.
+    Mapping one collection in 'ts_his_lib' library, download and
+    maintain history data from tushare, and provide other modules with the data.
     columns: open, high, close, low, volume
     Attributes:
         coll_name(string): stock id like '000651' for gree.
 
     """
-    DB_ADDR = 'localhost'
+    DB_ADDR = btu.Utils.DB_ADDR
     LIB_NAME = 'ts_his_lib'
 
     def __init__(self, coll_name):
@@ -58,16 +59,15 @@ class TsHisData(object):
 
         self._library.append(self._coll_name, his_data)
 
-    def get_data(self, coll_name):
+    def get_data(self):
         """
         Get all the data of one collection.
-        :param coll_name(string): the name of collection.
         :return: data(DataFrame)
         """
         store = arctic.Arctic(TsHisData.DB_ADDR)
         self._library = store[TsHisData.LIB_NAME]
 
-        return self._library.read(coll_name).data
+        return self._library.read(self._coll_name).data
 
     def _init_coll(self):
         """

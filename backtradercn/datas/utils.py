@@ -7,6 +7,7 @@ class Utils(object):
     """
     # duration(year) of data got when initiate collection
     INITIAL_DATA_YEAR = 3
+    DB_ADDR = 'localhost'
 
     @classmethod
     def strip_unused_cols(cls, data, *unused_cols):
@@ -20,4 +21,3 @@ class Utils(object):
             data = data.drop(unused_col, axis=1)
 
         return data
-
