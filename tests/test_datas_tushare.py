@@ -19,8 +19,8 @@ class TsHisDataTestCase(unittest.TestCase):
 
         mock_get_hist_data.return_value = mock_hist_data
 
-        coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData(*coll_names)
+        coll_name = '000651'
+        ts_his_data = bdt.TsHisData(coll_name)
 
         store = arctic.Arctic('localhost')
         store.delete_library(bdt.TsHisData.LIB_NAME)
@@ -50,40 +50,36 @@ class TsHisDataTestCase(unittest.TestCase):
 
         mock_get_hist_data.return_value = mock_hist_data
 
-        coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData(*coll_names)
+        coll_name = '000651'
+        ts_his_data = bdt.TsHisData(coll_name)
 
         store = arctic.Arctic('localhost')
         store.delete_library(bdt.TsHisData.LIB_NAME)
 
         ts_his_data.download_delta_data()
 
-        hist_data_000651 = ts_his_data.get_data('000651')
-        hist_data_600085 = ts_his_data.get_data('600085')
+        hist_data_000651 = ts_his_data.get_data()
 
         self.assertEqual(len(hist_data_000651), 2)
-        self.assertEqual(len(hist_data_600085), 2)
 
     @um.patch('tushare.get_hist_data')
     def _test_download_delta_data_no_data(self, mock_get_hist_data):
-        coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData(*coll_names)
+        coll_name = '000651'
+        ts_his_data = bdt.TsHisData(coll_name)
 
         mock_delta_data = pd.DataFrame()
         mock_get_hist_data.return_value = mock_delta_data
 
         ts_his_data.download_delta_data()
 
-        hist_data_000651 = ts_his_data.get_data('000651')
-        hist_data_600085 = ts_his_data.get_data('600085')
+        hist_data_000651 = ts_his_data.get_data()
 
         self.assertEqual(len(hist_data_000651), 2)
-        self.assertEqual(len(hist_data_600085), 2)
 
     @um.patch('tushare.get_hist_data')
     def _test_download_delta_data(self, mock_get_hist_data):
-        coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData(*coll_names)
+        coll_name = '000651'
+        ts_his_data = bdt.TsHisData(coll_name)
 
         yesterday = dt.datetime.now() - dt.timedelta(days=1)
         mock_delta_data = pd.DataFrame(data={
@@ -107,10 +103,7 @@ class TsHisDataTestCase(unittest.TestCase):
 
         ts_his_data.download_delta_data()
 
-        hist_data_000651 = ts_his_data.get_data('000651')
-        hist_data_600085 = ts_his_data.get_data('600085')
+        hist_data_000651 = ts_his_data.get_data()
 
         self.assertEqual(len(hist_data_000651), 3)
-        self.assertEqual(len(hist_data_600085), 3)
         self.assertEqual(hist_data_000651.index[-1], dt.datetime.strftime(yesterday, '%Y-%m-%d'))
-        self.assertEqual(hist_data_600085.index[-1], dt.datetime.strftime(yesterday, '%Y-%m-%d'))
