@@ -1,7 +1,6 @@
 import unittest
 import backtradercn.datas.tushare as bdt
 import unittest.mock as um
-import tushare
 import pandas as pd
 import datetime as dt
 import arctic
@@ -21,10 +20,10 @@ class TsHisDataTestCase(unittest.TestCase):
         mock_get_hist_data.return_value = mock_hist_data
 
         coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData('localhost', 'ts_hist_lib', *coll_names)
+        ts_his_data = bdt.TsHisData(*coll_names)
 
         store = arctic.Arctic('localhost')
-        store.delete_library('ts_hist_lib')
+        store.delete_library(bdt.TsHisData.LIB_NAME)
 
         ts_his_data.download_delta_data()
 
@@ -52,10 +51,10 @@ class TsHisDataTestCase(unittest.TestCase):
         mock_get_hist_data.return_value = mock_hist_data
 
         coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData('localhost', 'ts_hist_lib', *coll_names)
+        ts_his_data = bdt.TsHisData(*coll_names)
 
         store = arctic.Arctic('localhost')
-        store.delete_library('ts_hist_lib')
+        store.delete_library(bdt.TsHisData.LIB_NAME)
 
         ts_his_data.download_delta_data()
 
@@ -68,7 +67,7 @@ class TsHisDataTestCase(unittest.TestCase):
     @um.patch('tushare.get_hist_data')
     def _test_download_delta_data_no_data(self, mock_get_hist_data):
         coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData('localhost', 'ts_hist_lib', *coll_names)
+        ts_his_data = bdt.TsHisData(*coll_names)
 
         mock_delta_data = pd.DataFrame()
         mock_get_hist_data.return_value = mock_delta_data
@@ -84,7 +83,7 @@ class TsHisDataTestCase(unittest.TestCase):
     @um.patch('tushare.get_hist_data')
     def _test_download_delta_data(self, mock_get_hist_data):
         coll_names = ['000651', '600085']
-        ts_his_data = bdt.TsHisData('localhost', 'ts_hist_lib', *coll_names)
+        ts_his_data = bdt.TsHisData(*coll_names)
 
         yesterday = dt.datetime.now() - dt.timedelta(days=1)
         mock_delta_data = pd.DataFrame(data={
