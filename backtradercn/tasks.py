@@ -35,10 +35,8 @@ class Task(object):
         # Find the optimized parameter by using training data
         best_param = bsm.MATrendStrategy.train_strategy(training_data)
 
-        print('=====Log, starting backtesting.')
-
         # Run back testing, get the analysis data
-        result = bsm.MATrendStrategy.run_back_tesing(testing_data)
+        result = bsm.MATrendStrategy.run_back_testing(testing_data, **(best_param.ma_periods))
 
         return result
 

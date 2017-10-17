@@ -4,6 +4,7 @@
 import backtrader as bt
 import backtradercn.strategies.utils as bsu
 import backtradercn.datas.tushare as bdt
+import math
 
 
 class MATrendStrategy(bt.Strategy):
@@ -15,19 +16,22 @@ class MATrendStrategy(bt.Strategy):
     """
 
     # TODO(pandalibin):try tuple as params ==================>
+
     params = dict(
-        ma_period_s=15,
-        ma_period_l=60,
+        ma_periods=dict(
+            ma_period_s=15,
+            ma_period_l=60
+        )
     )
 
     def __init__(self):
         super().__init__()
 
         self.sma_s = bt.indicators.MovingAverageSimple(
-            self.datas[0], period=self.params.ma_period_s
+            self.datas[0], period=self.params.ma_periods.get('ma_period_s')
         )
         self.sma_l = bt.indicators.MovingAverageSimple(
-            self.datas[0], period=self.params.ma_period_l
+            self.datas[0], period=self.params.ma_periods.get('ma_period_l')
         )
 
     def next(self):
@@ -51,22 +55,45 @@ class MATrendStrategy(bt.Strategy):
         return ts_his_data.get_data()
 
     @classmethod
+    def get_params_list(cls, training_data):
+        """
+        Get the params list for finding the best strategy.
+        :param training_data: data for training.
+        :return: list(dict)
+        """
+        params_list = []
+        data_len = len(training_data)
+
+        #ma_s_len = math.floor(data_len * 0.3)
+        ma_s_len = 2
+
+        for i in range(1, ma_s_len):
+            for j in range(i, data_len, 5):
+                params = dict(
+                    ma_period_s=i,
+                    ma_period_l=j
+                )
+                params_list.append(params)
+
+        return params_list
+
+    @classmethod
     def train_strategy(cls, training_data):
         """
         Find the optimized parameter of the stategy by using training data.
         :param training_data(DataFrame): data used to train the strategy.
         :return: params(dict)
         """
-        #data_len = len(training_data)
-        data_len = 5
+        # get the params list
+        params_list = cls.get_params_list(training_data)
+
         al_results = []
 
         cerebro = bt.Cerebro()
         data = bt.feeds.PandasData(dataname=training_data)
 
         cerebro.adddata(data)
-        cerebro.optstrategy(cls, ma_period_s=range(1, data_len + 1),
-                            ma_period_l=range(1, data_len + 1))
+        cerebro.optstrategy(cls, ma_periods=params_list)
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
         cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
@@ -94,11 +121,10 @@ class MATrendStrategy(bt.Strategy):
         # Get the best params
         best_al_result = bsu.Utils.get_best_params(al_results)
 
-        return best_al_result.params
-
+        return best_al_result.get('params')
 
     @classmethod
-    def run_back_tesing(cls, testing_data, **params):
+    def run_back_testing(cls, testing_data, **params):
         """
         Run the back testing, return the analysis data.
         :param testing_data(DataFrame): data for back testing.
@@ -109,8 +135,8 @@ class MATrendStrategy(bt.Strategy):
         data = bt.feeds.PandasData(dataname=testing_data)
 
         cerebro.adddata(data)
-        cerebro.addstrategy(cls, ma_preriod_s=params.get('ma_period_s'),
-                            ma_period_l=params.get('ma_period_l'))
+        cerebro.addstrategy(cls, ma_periods=dict(ma_period_s=params.get('ma_period_s'),
+                            ma_period_l=params.get('ma_period_l')))
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
         cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
@@ -121,7 +147,7 @@ class MATrendStrategy(bt.Strategy):
         strats = cerebro.run()
         strat = strats[0]
 
-        for k, v in strat.analyzers.al_return.get_analysis():
+        for k, v in strat.analyzers.al_return.get_analysis().items():
             total_return_rate = v
 
         al_result = dict(
@@ -131,5 +157,3 @@ class MATrendStrategy(bt.Strategy):
         )
 
         return al_result
-
-
