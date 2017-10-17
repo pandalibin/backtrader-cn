@@ -4,7 +4,7 @@
 import backtrader as bt
 import backtradercn.strategies.utils as bsu
 import backtradercn.datas.tushare as bdt
-import math
+import logging
 
 
 class MATrendStrategy(bt.Strategy):
@@ -14,8 +14,6 @@ class MATrendStrategy(bt.Strategy):
         sma_s(DataFrame): short term moving average.
         sma_l(DataFrame): long term moving average.
     """
-
-    # TODO(pandalibin):try tuple as params ==================>
 
     params = dict(
         ma_periods=dict(
@@ -34,14 +32,23 @@ class MATrendStrategy(bt.Strategy):
             self.datas[0], period=self.params.ma_periods.get('ma_period_l')
         )
 
+    def start(self):
+        logging.info('Starting strategy, ma_period_s is %d, ma_period_l is %d' % (
+            self.params.ma_periods.get('ma_period_s'),
+            self.params.ma_periods.get('ma_period_l')
+        ))
+
     def next(self):
         if not self.position:
-            if self.sma_s > self.sma_l:
-                bsu.Utils.order_target_percent(self, 1.0)
+            if self.sma_s[0] > self.sma_l[0]:
+                self.order_target_percent(target=1.0)
+                bsu.Utils.log(self.datas[0].datetime.date(),
+                              'Adjust position to 1.0, position is %s' % self.position)
 
         else:
-            if self.sma_s <= self.sma_l:
-                bsu.Utils.order_target_percent(self, 0.0)
+            if self.sma_s[0] <= self.sma_l[0]:
+                self.order_target_percent(target=0.0)
+                bsu.Utils.log(self.datas[0].datetime.date(), 'Adjust position to 0.0.')
 
     @classmethod
     def get_data(cls, coll_name):
@@ -62,8 +69,11 @@ class MATrendStrategy(bt.Strategy):
         :return: list(dict)
         """
         params_list = []
-        data_len = len(training_data)
+        #TODO
+        #data_len = len(training_data)
+        data_len = 7
 
+        #TODO
         #ma_s_len = math.floor(data_len * 0.3)
         ma_s_len = 2
 
@@ -98,8 +108,8 @@ class MATrendStrategy(bt.Strategy):
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
         cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
 
-        cerebro.broker.set_cash(bsu.Utils.DEFAULT_CASH)
-        cerebro.broker.setcommission(bsu.Utils.DEFAULT_COMM)
+        cerebro.broker.setcash(bsu.Utils.DEFAULT_CASH)
+        cerebro.broker.setcommission(commission=bsu.Utils.DEFAULT_COMM)
 
         results = cerebro.run()
 

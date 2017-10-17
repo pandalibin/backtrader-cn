@@ -7,7 +7,7 @@ import datetime
 
 class Utils(object):
 
-    DEFAULT_CASH = 10000
+    DEFAULT_CASH = 10000.0
     # 0.0625%
     DEFAULT_COMM = 0.0625
 
@@ -43,21 +43,21 @@ class Utils(object):
         """
         logging.info('%s, %s' % (dt.isoformat(), txt))
 
-    @classmethod
-    def order_target_percent(cls, strategy, target=0.0):
-        """
-        Place an order to rebalance a postion to have final value of target percentage of
-        current portfolio value and notify the user.
-        :param strategy(Strategy): current strategy instance.
-        :param target(float): target percentage of portfolio value.
-        :return: None
-        """
-        strategy.order_target_percent(strategy.datas[0])
-        cls.log(dt=strategy.datas[0].datetime.date(),
-                txt='Adjust position percentage to %f.' % target)
-
-        if strategy.datas[0].datetime.date() == datetime.datetime.now().date():
-            logging.info('==>Notify customer to adjust the position.')
+    # @classmethod
+    # def order_target_percent(cls, strategy, target=0.0):
+    #     """
+    #     Place an order to rebalance a postion to have final value of target percentage of
+    #     current portfolio value and notify the user.
+    #     :param strategy(Strategy): current strategy instance.
+    #     :param target(float): target percentage of portfolio value.
+    #     :return: None
+    #     """
+    #     strategy.order_target_percent(target)
+    #     cls.log(dt=strategy.datas[0].datetime.date(),
+    #             txt='Adjust position percentage to %f.' % target)
+    #
+    #     if strategy.datas[0].datetime.date() == datetime.datetime.now().date():
+    #         logging.info('==>Notify customer to adjust the position.')
 
 
 
