@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import arctic
-import tushare as ts
 import datetime as dt
 import backtradercn.datas.utils as btu
 import logging
+import tushare as ts
 
 
 class TsHisData(object):
@@ -24,6 +24,17 @@ class TsHisData(object):
         self._unused_cols = ['price_change', 'p_change', 'ma5', 'ma10', 'ma20',
                              'v_ma5', 'v_ma10', 'v_ma20', 'turnover']
         self._new_added_colls = []
+
+    @classmethod
+    def download_all_delta_data(cls, *coll_names):
+        """
+        Download all the collections' delta data.
+        :param coll_names: list of the collections.
+        :return: None
+        """
+        for coll_name in coll_names:
+            ts_his_data = TsHisData(coll_name)
+            ts_his_data.download_delta_data()
 
     def download_delta_data(self):
         """

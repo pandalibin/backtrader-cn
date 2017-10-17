@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import backtradercn.datas.tushare as bdt
 import backtradercn.strategies.ma as bsm
+import backtradercn.strategies.utils as bsu
 
 
 class Task(object):
@@ -30,5 +30,18 @@ class Task(object):
         data = bsm.MATrendStrategy.get_data(self._stock_id)
 
         # Split the data
+        training_data, testing_data = bsu.Utils.split_data(data)
+
+        # Find the optimized parameter by using training data
+        best_param = bsm.MATrendStrategy.train_strategy(training_data)
+
+        print('=====Log, starting backtesting.')
+
+        # Run back testing, get the analysis data
+        result = bsm.MATrendStrategy.run_back_tesing(testing_data)
+
+        return result
+
+
 
 
