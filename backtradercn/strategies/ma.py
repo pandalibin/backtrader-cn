@@ -6,6 +6,7 @@ import backtradercn.strategies.utils as bsu
 import backtradercn.datas.tushare as bdt
 import logging
 import math
+import datetime as dt
 
 
 class MATrendStrategy(bt.Strategy):
@@ -52,10 +53,18 @@ class MATrendStrategy(bt.Strategy):
                 # the next open price to executed, so it is possible that the order
                 # can not be executed due to margin, so set the target to 0.8 instead
                 # of 1.0 to reduce the odds of not being executed
-                self.order = self.order_target_percent(target=0.8, valid=bt.Order.DAY)
+                target_long = 0.8
+                self.order = self.order_target_percent(target=target_long, valid=bt.Order.DAY)
+                if self.datas[0].datetime.date() == dt.datetime.now().date():
+                    bsu.Utils.log(self.datas[0].datetime.date(),
+                                  'Market Signal: adjust position to %.2f' % target_long)
         else:
             if self.sma_s[0] <= self.sma_l[0]:
-                self.order = self.order_target_percent(target=0.0, valid=bt.Order.DAY)
+                target_short = 0.0
+                self.order = self.order_target_percent(target=target_short, valid=bt.Order.DAY)
+                if self.datas[0].datetime.date() == dt.datetime.now().date():
+                    bsu.Utils.log(self.datas[0].datetime.date(),
+                                  'Market Signal: adjust position to %.2f' % target_short)
 
     def notify_order(self, order):
         if order.status in [order.Completed]:
