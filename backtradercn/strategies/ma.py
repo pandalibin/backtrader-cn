@@ -70,10 +70,10 @@ class MATrendStrategy(bt.Strategy):
         if order.status in [order.Completed]:
             if order.isbuy():
                 bsu.Utils.log(self.datas[0].datetime.date(),
-                              'Buy order Executed')
+                              'BUY Executed, portfolio value is %.2f' % self.broker.get_value())
             else:
                 bsu.Utils.log(self.datas[0].datetime.date(),
-                              'Sell order Executed')
+                              'SELL Executed, portfolio value is %.2f' % self.broker.get_value())
 
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             if order.isbuy():
