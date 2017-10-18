@@ -8,8 +8,6 @@ import datetime
 class Utils(object):
 
     DEFAULT_CASH = 10000.0
-    # 0.0625%
-    DEFAULT_COMM = 0.0625
 
     @classmethod
     def parse_date(cls, date_string):
@@ -41,7 +39,7 @@ class Utils(object):
         :param txt(string): txt to be logged.
         :return: None
         """
-        logging.info('%s, %s' % (dt.isoformat(), txt))
+        logging.debug('%s, %s' % (dt.isoformat(), txt))
 
     # @classmethod
     # def order_target_percent(cls, strategy, target=0.0):
@@ -71,5 +69,7 @@ class Utils(object):
         al_results_df = pd.DataFrame.from_dict(al_results)
         al_results_df = al_results_df.sort_values('total_return_rate', ascending=False)
 
-        return al_results_df.iloc[0].to_dict()
+        al_result_dict = al_results_df.iloc[0].to_dict()
+
+        return al_result_dict
 

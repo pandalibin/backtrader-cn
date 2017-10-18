@@ -24,13 +24,15 @@ def back_test():
     for stock in stock_pools:
         task = btasks.Task(bsm.MATrendStrategy, stock)
         result = task.task()
-        logging.info('total return rate: %.2f, max drawdown: %.2f, max drawdown period: %.2f'
-                     % (result.get('total_return_rate'),
-                        result.get('max_drawdown'),
-                        result.get('max_drawdown_period')))
+        logging.info(
+            'Back testing result, trading days: %.2f, total return rate: %.2f, max drawdown: %.2f, max drawdown period: %.2f'
+            % (result.get('trading_days'),
+               result.get('total_return_rate'),
+               result.get('max_drawdown'),
+               result.get('max_drawdown_period')))
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     # download_delta_data()
     back_test()

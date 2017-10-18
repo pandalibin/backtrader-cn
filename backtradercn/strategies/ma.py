@@ -5,6 +5,7 @@ import backtrader as bt
 import backtradercn.strategies.utils as bsu
 import backtradercn.datas.tushare as bdt
 import logging
+import math
 
 
 class MATrendStrategy(bt.Strategy):
@@ -32,23 +33,48 @@ class MATrendStrategy(bt.Strategy):
             self.datas[0], period=self.params.ma_periods.get('ma_period_l')
         )
 
+        self.order = None
+
     def start(self):
-        logging.info('Starting strategy, ma_period_s is %d, ma_period_l is %d' % (
+        logging.debug('>Starting strategy, ma_period_s is %d, ma_period_l is %d' % (
             self.params.ma_periods.get('ma_period_s'),
             self.params.ma_periods.get('ma_period_l')
         ))
 
     def next(self):
+
+        if self.order:
+            return
+
         if not self.position:
             if self.sma_s[0] > self.sma_l[0]:
-                self.order_target_percent(target=1.0)
-                bsu.Utils.log(self.datas[0].datetime.date(),
-                              'Adjust position to 1.0, position is %s' % self.position)
-
+                # Using the current close price to calculate the size to buy, but use
+                # the next open price to executed, so it is possible that the order
+                # can not be executed due to margin, so set the target to 0.8 instead
+                # of 1.0 to reduce the odds of not being executed
+                self.order = self.order_target_percent(target=0.8, valid=bt.Order.DAY)
         else:
             if self.sma_s[0] <= self.sma_l[0]:
-                self.order_target_percent(target=0.0)
-                bsu.Utils.log(self.datas[0].datetime.date(), 'Adjust position to 0.0.')
+                self.order = self.order_target_percent(target=0.0, valid=bt.Order.DAY)
+
+    def notify_order(self, order):
+        if order.status in [order.Completed]:
+            if order.isbuy():
+                bsu.Utils.log(self.datas[0].datetime.date(),
+                              'Buy order Executed')
+            else:
+                bsu.Utils.log(self.datas[0].datetime.date(),
+                              'Sell order Executed')
+
+        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+            if order.isbuy():
+                bsu.Utils.log(self.datas[0].datetime.date(),
+                              'Buy order Canceled/Margin/Rejected, order_status is %d' % order.status)
+            else:
+                bsu.Utils.log(self.datas[0].datetime.date(),
+                              'Sell order Canceled/Margin/Rejected, order_status is %d' % order.status)
+
+        self.order = None
 
     @classmethod
     def get_data(cls, coll_name):
@@ -69,16 +95,14 @@ class MATrendStrategy(bt.Strategy):
         :return: list(dict)
         """
         params_list = []
-        #TODO
-        #data_len = len(training_data)
-        data_len = 7
 
-        #TODO
-        #ma_s_len = math.floor(data_len * 0.3)
-        ma_s_len = 2
+        data_len = len(training_data)
 
-        for i in range(1, ma_s_len):
-            for j in range(i, data_len, 5):
+        # ma_s_len is [1, data_len * 0.3)
+        ma_s_len = math.floor(data_len * 0.3)
+
+        for i in range(1, int(ma_s_len)):
+            for j in range(i + 1, data_len, 5):
                 params = dict(
                     ma_period_s=i,
                     ma_period_l=j
@@ -109,7 +133,8 @@ class MATrendStrategy(bt.Strategy):
         cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
 
         cerebro.broker.setcash(bsu.Utils.DEFAULT_CASH)
-        cerebro.broker.setcommission(commission=bsu.Utils.DEFAULT_COMM)
+
+        logging.debug('=========Starting train the strategy...')
 
         results = cerebro.run()
 
@@ -131,7 +156,16 @@ class MATrendStrategy(bt.Strategy):
         # Get the best params
         best_al_result = bsu.Utils.get_best_params(al_results)
 
-        return best_al_result.get('params')
+        params = best_al_result.get('params')
+        ma_periods = params.ma_periods
+
+        logging.debug('Best parma is ma_period_s: %d, ma_period_l: %d' %
+                      (
+                          ma_periods.get('ma_period_s'),
+                          ma_periods.get('ma_period_l')
+                      ))
+
+        return params
 
     @classmethod
     def run_back_testing(cls, testing_data, **params):
@@ -144,15 +178,22 @@ class MATrendStrategy(bt.Strategy):
         cerebro = bt.Cerebro()
         data = bt.feeds.PandasData(dataname=testing_data)
 
+        length = len(testing_data)
+
         cerebro.adddata(data)
         cerebro.addstrategy(cls, ma_periods=dict(ma_period_s=params.get('ma_period_s'),
-                            ma_period_l=params.get('ma_period_l')))
+                                                 ma_period_l=params.get('ma_period_l')))
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
         cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
 
         cerebro.broker.set_cash(bsu.Utils.DEFAULT_CASH)
-        cerebro.broker.setcommission(bsu.Utils.DEFAULT_COMM)
+
+        logging.debug('=========Starting back testing, params is ma_period_s: %d, ma_period_l: %d...' %
+                      (
+                          params.get('ma_period_s'),
+                          params.get('ma_period_l')
+                      ))
 
         strats = cerebro.run()
         strat = strats[0]
@@ -161,6 +202,7 @@ class MATrendStrategy(bt.Strategy):
             total_return_rate = v
 
         al_result = dict(
+            trading_days=length,
             total_return_rate=total_return_rate,
             max_drawdown=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdown'),
             max_drawdown_period=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdownperiod')
