@@ -6,16 +6,6 @@ import logging
 
 stock_pools = ['000651']
 
-
-def download_delta_data():
-    """
-    Download delta data for all collections of all libraries.
-    :return: None
-    """
-    # library: ts_his_data
-    bdt.TsHisData.download_all_delta_data(*stock_pools)
-
-
 def back_test():
     """
     Run back testing tasks via multiprocessing
@@ -35,5 +25,4 @@ def back_test():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    # download_delta_data()
     back_test()
