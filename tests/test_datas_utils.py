@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import backtradercn.datas.utils as bdu
 import pandas as pd

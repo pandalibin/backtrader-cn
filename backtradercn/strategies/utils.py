@@ -41,24 +41,6 @@ class Utils(object):
         """
         logging.debug('%s, %s' % (dt.isoformat(), txt))
 
-    # @classmethod
-    # def order_target_percent(cls, strategy, target=0.0):
-    #     """
-    #     Place an order to rebalance a postion to have final value of target percentage of
-    #     current portfolio value and notify the user.
-    #     :param strategy(Strategy): current strategy instance.
-    #     :param target(float): target percentage of portfolio value.
-    #     :return: None
-    #     """
-    #     strategy.order_target_percent(target)
-    #     cls.log(dt=strategy.datas[0].datetime.date(),
-    #             txt='Adjust position percentage to %f.' % target)
-    #
-    #     if strategy.datas[0].datetime.date() == datetime.datetime.now().date():
-    #         logging.info('==>Notify customer to adjust the position.')
-
-
-
     @classmethod
     def get_best_params(cls, al_results):
         """
