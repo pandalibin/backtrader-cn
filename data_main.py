@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import backtradercn.datas.tushare as bdt
-import backtradercn.tasks as btasks
-import backtradercn.strategies.ma as bsm
 import logging
+import timeit
 
 stock_pools = ['000651']
 
@@ -19,3 +18,8 @@ def download_delta_data():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     download_delta_data()
+
+    run_period = timeit.timeit('download_delta_data()',
+                               setup='from __main__ import download_delta_data', number=1)
+
+    logging.debug('Run period is %.2f seconds' % run_period)

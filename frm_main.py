@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import backtradercn.datas.tushare as bdt
 import backtradercn.tasks as btasks
 import backtradercn.strategies.ma as bsm
 import logging
+import timeit
 
 stock_pools = ['000651']
+
 
 def back_test():
     """
@@ -25,4 +26,7 @@ def back_test():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    back_test()
+
+    run_period = timeit.timeit('back_test()', setup='from __main__ import back_test', number=1)
+
+    logging.debug('Run period is %.2f seconds' % run_period)
