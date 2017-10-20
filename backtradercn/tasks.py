@@ -27,19 +27,15 @@ class Task(object):
         :return: analysis of this back testing(dict).
         """
         # Get the data
-        data = bsm.MATrendStrategy.get_data(self._stock_id)
+        data = self._Strategy.get_data(self._stock_id)
 
         # Split the data
         training_data, testing_data = bsu.Utils.split_data(data)
 
         # Find the optimized parameter by using training data
-        best_param = bsm.MATrendStrategy.train_strategy(training_data)
-
+        best_param = self._Strategy.train_strategy(training_data)
+        
         # Run back testing, get the analysis data
-        result = bsm.MATrendStrategy.run_back_testing(testing_data, **(best_param.ma_periods))
+        result = self._Strategy.run_back_testing(testing_data, best_param)
 
         return result
-
-
-
-

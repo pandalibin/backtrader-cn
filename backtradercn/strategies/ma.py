@@ -178,7 +178,7 @@ class MATrendStrategy(bt.Strategy):
         return params
 
     @classmethod
-    def run_back_testing(cls, testing_data, **params):
+    def run_back_testing(cls, testing_data, params):
         """
         Run the back testing, return the analysis data.
         :param testing_data(DataFrame): data for back testing.
@@ -191,8 +191,9 @@ class MATrendStrategy(bt.Strategy):
         length = len(testing_data)
 
         cerebro.adddata(data)
-        cerebro.addstrategy(cls, ma_periods=dict(ma_period_s=params.get('ma_period_s'),
-                                                 ma_period_l=params.get('ma_period_l')))
+        ma_periods = params.ma_periods
+        cerebro.addstrategy(cls, ma_periods=dict(ma_period_s=ma_periods.get('ma_period_s'),
+                                                 ma_period_l=ma_periods.get('ma_period_l')))
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
 
@@ -202,8 +203,8 @@ class MATrendStrategy(bt.Strategy):
 
         logging.debug('=========Starting back testing, params is ma_period_s: %d, ma_period_l: %d...' %
                       (
-                          params.get('ma_period_s'),
-                          params.get('ma_period_l')
+                          ma_periods.get('ma_period_s'),
+                          ma_periods.get('ma_period_l')
                       ))
 
         strats = cerebro.run()
