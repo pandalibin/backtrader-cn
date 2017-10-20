@@ -7,6 +7,7 @@ import backtradercn.datas.tushare as bdt
 import logging
 import math
 import datetime as dt
+import backtradercn.analyzers.drawdown as bad
 
 
 class MATrendStrategy(bt.Strategy):
@@ -194,7 +195,8 @@ class MATrendStrategy(bt.Strategy):
                                                  ma_period_l=params.get('ma_period_l')))
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
-        cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
+
+        cerebro.addanalyzer(bad.TimeDrawDown, _name='al_max_drawdown')
 
         cerebro.broker.set_cash(bsu.Utils.DEFAULT_CASH)
 
@@ -214,7 +216,8 @@ class MATrendStrategy(bt.Strategy):
             trading_days=length,
             total_return_rate=total_return_rate,
             max_drawdown=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdown'),
-            max_drawdown_period=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdownperiod')
+            max_drawdown_period=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdownperiod'),
+            drawdown_points=strat.analyzers.al_max_drawdown.get_analysis().get('drawdownpoints')
         )
 
         return al_result
