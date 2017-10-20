@@ -17,7 +17,6 @@ def download_delta_data():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    download_delta_data()
 
     run_period = timeit.timeit('download_delta_data()',
                                setup='from __main__ import download_delta_data', number=1)
