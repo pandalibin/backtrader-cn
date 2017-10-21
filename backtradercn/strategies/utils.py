@@ -10,10 +10,6 @@ class Utils(object):
     DEFAULT_CASH = 10000.0
 
     @classmethod
-    def parse_date(cls, date_string):
-        return datetime.datetime.strptime(date_string, '%Y-%m-%d')
-
-    @classmethod
     def split_data(cls, data, percent=0.3):
         """
         Split the data into training data and test data.
@@ -21,9 +17,6 @@ class Utils(object):
         :param percent(float): percent of data used as training data.
         :return: training data(DataFrame) and testing data(DataFrame)
         """
-
-        # parse the date
-        data.index = data.index.map(cls.parse_date)
 
         rows = len(data)
         train_rows = math.floor(rows * percent)

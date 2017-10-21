@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 
 
 class Utils(object):
@@ -21,3 +22,7 @@ class Utils(object):
             data = data.drop(unused_col, axis=1)
 
         return data
+
+    @classmethod
+    def parse_date(cls, date_string):
+        return datetime.datetime.strptime(date_string, '%Y-%m-%d')

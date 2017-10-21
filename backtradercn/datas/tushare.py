@@ -78,7 +78,11 @@ class TsHisData(object):
         store = arctic.Arctic(TsHisData.DB_ADDR)
         self._library = store[TsHisData.LIB_NAME]
 
-        return self._library.read(self._coll_name).data
+        data = self._library.read(self._coll_name).data
+        # parse the date
+        data.index = data.index.map(btu.Utils.parse_date)
+
+        return data
 
     def _init_coll(self):
         """
