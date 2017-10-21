@@ -106,4 +106,5 @@ class TsHisDataTestCase(unittest.TestCase):
         hist_data_000651 = ts_his_data.get_data()
 
         self.assertEqual(len(hist_data_000651), 3)
-        self.assertEqual(hist_data_000651.index[-1], dt.datetime.strftime(yesterday, '%Y-%m-%d'))
+        self.assertEqual(dt.datetime.strftime(hist_data_000651.index[-1], '%Y-%m-%d'),
+                         dt.datetime.strftime(yesterday, '%Y-%m-%d'))

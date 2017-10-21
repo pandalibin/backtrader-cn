@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import arctic
 import datetime as dt
-import backtradercn.datas.utils as btu
+import backtradercn.datas.utils as bdu
 import logging
 import tushare as ts
 
@@ -15,7 +15,7 @@ class TsHisData(object):
         coll_name(string): stock id like '000651' for gree.
 
     """
-    DB_ADDR = btu.Utils.DB_ADDR
+    DB_ADDR = bdu.Utils.DB_ADDR
     LIB_NAME = 'ts_his_lib'
 
     def __init__(self, coll_name):
@@ -66,7 +66,7 @@ class TsHisData(object):
             logging.warning('delta data of stock %s from tushare is empty' % self._coll_name)
             return
 
-        his_data = btu.Utils.strip_unused_cols(his_data, *self._unused_cols)
+        his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)
 
         self._library.append(self._coll_name, his_data)
 
@@ -80,7 +80,7 @@ class TsHisData(object):
 
         data = self._library.read(self._coll_name).data
         # parse the date
-        data.index = data.index.map(btu.Utils.parse_date)
+        data.index = data.index.map(bdu.Utils.parse_date)
 
         return data
 
@@ -103,6 +103,6 @@ class TsHisData(object):
                 logging.warning('data of stock %s from tushare when initiation is empty' % self._coll_name)
                 return
 
-            his_data = btu.Utils.strip_unused_cols(his_data, *self._unused_cols)
+            his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)
 
             self._library.write(self._coll_name, his_data)

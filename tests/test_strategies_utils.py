@@ -8,15 +8,8 @@ import numpy as np
 
 class UtilsTestCase(unittest.TestCase):
     def test_run(self):
-        self._test_parse_data()
         self._test_split_data()
         self._test_get_best_params()
-
-    def _test_parse_data(self):
-        date_string = '2017-01-01'
-        parsed_date = bsu.Utils.parse_date(date_string)
-
-        self.assertEqual(parsed_date, dt.datetime(2017, 1, 1))
 
     def _test_split_data(self):
         data = pd.DataFrame(np.random.rand(10, 2))

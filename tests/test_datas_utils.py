@@ -2,11 +2,19 @@
 import unittest
 import backtradercn.datas.utils as bdu
 import pandas as pd
+import datetime as dt
 
 
 class UtilsTestCase(unittest.TestCase):
     def test_run(self):
         self._test_strip_unused_cols()
+        self._test_parse_data()
+
+    def _test_parse_data(self):
+        date_string = '2017-01-01'
+        parsed_date = bdu.Utils.parse_date(date_string)
+
+        self.assertEqual(parsed_date, dt.datetime(2017, 1, 1))
 
     def _test_strip_unused_cols(self):
         data = pd.DataFrame({
