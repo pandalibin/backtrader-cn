@@ -93,8 +93,6 @@ class TsHisData(object):
         :return: None
         """
 
-        a = self
-
         # if collection is not initialized
         if self._coll_name not in self._library.list_symbols():
             self._new_added_colls.append(self._coll_name)
