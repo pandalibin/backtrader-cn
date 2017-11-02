@@ -16,7 +16,7 @@ services:
 
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - grep -Ev '^#' requirements.txt | xargs -n 1 -L 1 pip install
 
 # command to run tests
 before_script:
