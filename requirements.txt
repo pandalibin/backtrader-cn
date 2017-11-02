@@ -1,6 +1,6 @@
 beautifulsoup4
 lxml
-pandas
+pandas==0.20.1
 coverage
 codecov
 nose
