@@ -17,8 +17,6 @@ services:
 # command to install dependencies
 install:
   - pip install -r requirements.txt
-  - pip install tushare
-  - pip install git+https://github.com/manahl/arctic.git
 
 # command to run tests
 before_script:
