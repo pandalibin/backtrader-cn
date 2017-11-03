@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-
-
 import backtrader as bt
 import backtradercn.strategies.utils as bsu
 import backtradercn.datas.tushare as bdt
-import logging
+from backtradercn.config.log import logging
 import math
 import datetime as dt
 import backtradercn.analyzers.drawdown as bad
+
+
+logger = logging.getLogger(__name__)
 
 
 class MATrendStrategy(bt.Strategy):
@@ -38,7 +39,7 @@ class MATrendStrategy(bt.Strategy):
         self.order = None
 
     def start(self):
-        logging.debug('>Starting strategy, ma_period_s is %d, ma_period_l is %d' % (
+        logger.debug('>Starting strategy, ma_period_s is %d, ma_period_l is %d' % (
             self.params.ma_periods.get('ma_period_s'),
             self.params.ma_periods.get('ma_period_l')
         ))
@@ -144,7 +145,7 @@ class MATrendStrategy(bt.Strategy):
 
         cerebro.broker.setcash(bsu.Utils.DEFAULT_CASH)
 
-        logging.debug('=========Starting train the strategy...')
+        logger.debug('=========Starting train the strategy...')
 
         results = cerebro.run()
 
@@ -169,7 +170,7 @@ class MATrendStrategy(bt.Strategy):
         params = best_al_result.get('params')
         ma_periods = params.ma_periods
 
-        logging.debug('Best parma is ma_period_s: %d, ma_period_l: %d' %
+        logger.debug('Best parma is ma_period_s: %d, ma_period_l: %d' %
                       (
                           ma_periods.get('ma_period_s'),
                           ma_periods.get('ma_period_l')
@@ -201,7 +202,7 @@ class MATrendStrategy(bt.Strategy):
 
         cerebro.broker.set_cash(bsu.Utils.DEFAULT_CASH)
 
-        logging.debug('=========Starting back testing, params is ma_period_s: %d, ma_period_l: %d...' %
+        logger.debug('=========Starting back testing, params is ma_period_s: %d, ma_period_l: %d...' %
                       (
                           ma_periods.get('ma_period_s'),
                           ma_periods.get('ma_period_l')

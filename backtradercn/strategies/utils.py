@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-import logging
+from backtradercn.config.log import logging
 import math
 import pandas as pd
-import datetime
+
+
+logger = logging.getLogger(__name__)
 
 
 class Utils(object):
@@ -32,7 +34,7 @@ class Utils(object):
         :param txt(string): txt to be logged.
         :return: None
         """
-        logging.debug('%s, %s' % (dt.isoformat(), txt))
+        logger.debug('%s, %s' % (dt.isoformat(), txt))
 
     @classmethod
     def get_best_params(cls, al_results):

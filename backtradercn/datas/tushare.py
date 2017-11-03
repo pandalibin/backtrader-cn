@@ -2,8 +2,11 @@
 import arctic
 import datetime as dt
 import backtradercn.datas.utils as bdu
-import logging
+from backtradercn.config.log import logging
 import tushare as ts
+
+
+logger = logging.getLogger(__name__)
 
 
 class TsHisData(object):
@@ -63,11 +66,12 @@ class TsHisData(object):
         his_data = ts.get_hist_data(code=self._coll_name, start=dt.datetime.strftime(start, '%Y-%m-%d'),
                                     end=dt.datetime.strftime(end, '%Y-%m-%d'), retry_count=5)
         if len(his_data) == 0:
-            logging.warning('delta data of stock %s from tushare is empty' % self._coll_name)
+            logger.warning('delta data of stock %s from tushare is empty' % self._coll_name)
             return
 
         his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)
 
+        logger.debug(f'stock code: {self._coll_name}')
         self._library.append(self._coll_name, his_data)
 
     def get_data(self):
@@ -98,7 +102,7 @@ class TsHisData(object):
             self._new_added_colls.append(self._coll_name)
             his_data = ts.get_hist_data(code=self._coll_name, retry_count=5).sort_index()
             if len(his_data) == 0:
-                logging.warning('data of stock %s from tushare when initiation is empty' % self._coll_name)
+                logger.warning('data of stock %s from tushare when initiation is empty' % self._coll_name)
                 return
 
             his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)

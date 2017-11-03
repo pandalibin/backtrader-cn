@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import backtradercn.tasks as btasks
 import backtradercn.strategies.ma as bsm
-import logging
-import timeit
+from backtradercn.config.log import logging
 
+
+logger = logging.getLogger(__name__)
 stock_pools = ['000651']
 
 
@@ -16,7 +17,7 @@ def back_test():
         task = btasks.Task(bsm.MATrendStrategy, stock)
         result = task.task()
 
-        logging.debug(
+        logger.debug(
             'Stock %s back testing result, trading days: %.2f, total return rate: %.2f, max drawdown: %.2f, max drawdown period: %.2f'
             % (stock,
                result.get('trading_days'),
@@ -25,19 +26,17 @@ def back_test():
                result.get('max_drawdown_period')))
 
         drawdown_points = result.get('drawdown_points')
-        logging.debug('Draw down points:')
+        logger.debug('Draw down points:')
         for drawdown_point in drawdown_points:
-            logging.debug('drawdown_point: %s, drawdown: %.2f, drawdownlen: %d' % (
-                drawdown_point.get('datetime').isoformat(),
-                drawdown_point.get('drawdown'),
-                drawdown_point.get('drawdownlen')
-            ))
-
+            logger.debug(
+                'stock: %s, drawdown_point: %s, drawdown: %.2f, drawdownlen: %d' % (
+                    stock,
+                    drawdown_point.get('datetime').isoformat(),
+                    drawdown_point.get('drawdown'),
+                    drawdown_point.get('drawdownlen')
+                )
+            )
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-
-    run_period = timeit.timeit('back_test()', setup='from __main__ import back_test', number=1)
-
-    logging.debug('Run period is %.2f seconds' % run_period)
+    back_test()
