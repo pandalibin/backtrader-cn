@@ -21,9 +21,18 @@
 
 	$ sudo apt-get install mongodb
 
+python 版本
+
+    $ python --version
+    Python 3.6.0
+
 安装 Python modules
 
 	$ pip install -U -r requirements.txt
+
+如果安装`arctic`模块报错提示缺少`limits.h`, mac系统需要安装
+
+    $ xcode-select --install
 
 获取股票数据
 
