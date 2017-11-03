@@ -8,3 +8,4 @@ backtrader
 tushare
 arctic
 WeRoBot==1.1.1
+gevent

@@ -19,6 +19,7 @@
 
 ##### Ubuntu/Debian
 
+	$ sudo apt-get install gcc build-essential  # arctic
 	$ sudo apt-get install mongodb
 
 python 版本

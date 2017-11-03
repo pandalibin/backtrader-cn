@@ -29,6 +29,16 @@ class TsHisData(object):
         self._new_added_colls = []
 
     @classmethod
+    def download_one_delta_data(cls, coll_name):
+        """
+        Download all the collections' delta data.
+        :param coll_name: a stock code
+        :return: None
+        """
+        ts_his_data = TsHisData(coll_name)
+        ts_his_data.download_delta_data()
+
+    @classmethod
     def download_all_delta_data(cls, *coll_names):
         """
         Download all the collections' delta data.
