@@ -56,14 +56,14 @@ class MATrendStrategy(bt.Strategy):
                 # of 1.0 to reduce the odds of not being executed
                 target_long = 0.8
                 self.order = self.order_target_percent(target=target_long, valid=bt.Order.DAY)
-                if self.datas[0].datetime.date() == dt.datetime.now().date():
+                if self.datas[0].datetime.date() == dt.datetime.now().date() - dt.timedelta(days=1):
                     bsu.Utils.log(self.datas[0].datetime.date(),
                                   'Market Signal: adjust position to %.2f' % target_long)
         else:
             if self.sma_s[0] <= self.sma_l[0]:
                 target_short = 0.0
                 self.order = self.order_target_percent(target=target_short, valid=bt.Order.DAY)
-                if self.datas[0].datetime.date() == dt.datetime.now().date():
+                if self.datas[0].datetime.date() == dt.datetime.now().date() - dt.timedelta(days=1):
                     bsu.Utils.log(self.datas[0].datetime.date(),
                                   'Market Signal: adjust position to %.2f' % target_short)
 
