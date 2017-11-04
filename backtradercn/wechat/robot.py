@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-
+from backtradercn.settings import settings as conf
+from backtradercn.libs.log import logging
 from werobot.client import Client
+
+
+logger = logging.getLogger(__name__)
 
 
 class WeChatClient(Client):
@@ -27,8 +31,8 @@ class WeChatClient(Client):
 
 if __name__ == '__main__':
     client = WeChatClient({
-        'APP_ID': 'wx5e8e3c4779887f32',
-        'APP_SECRET': 'd4624c36b6795d1d99dcf0547af5443d',
+        'APP_ID': conf.WECHAT_APP_ID,
+        'APP_SECRET': conf.WECHAT_APP_SECRET,
     })
     response = client.send_all_text_message('just test')
-    print(response)
+    logger.debug(response)

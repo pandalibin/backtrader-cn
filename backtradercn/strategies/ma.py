@@ -62,6 +62,12 @@ class MATrendStrategy(bt.Strategy):
                 if self.datas[0].datetime.date() == dt.datetime.now().date() - dt.timedelta(days=1):
                     bsu.Utils.log(self.datas[0].datetime.date(),
                                   'Market Signal: adjust position to %.2f' % target_long)
+                    symbol = dt.datetime.now().strftime('%Y-%m-%d')
+                    data = {
+                        'stock': self.params.ma_periods.get('stock_id'),
+                        'action': 'buy'
+                    }
+                    bsu.Utils.write_daily_alert(symbol, data)
         else:
             if self.sma_s[0] <= self.sma_l[0]:
                 target_short = 0.0
@@ -69,6 +75,12 @@ class MATrendStrategy(bt.Strategy):
                 if self.datas[0].datetime.date() == dt.datetime.now().date() - dt.timedelta(days=1):
                     bsu.Utils.log(self.datas[0].datetime.date(),
                                   'Market Signal: adjust position to %.2f' % target_short)
+                    symbol = dt.datetime.now().strftime('%Y-%m-%d')
+                    data = {
+                        'stock': self.params.ma_periods.get('stock_id'),
+                        'action': 'sell'
+                    }
+                    bsu.Utils.write_daily_alert(symbol, data)
 
     def notify_order(self, order):
         if order.status in [order.Completed]:

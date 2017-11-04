@@ -2,7 +2,9 @@
 import math
 
 import pandas as pd
+import arctic
 
+from backtradercn.settings import settings as conf
 from backtradercn.libs.log import logging
 
 logger = logging.getLogger(__name__)
@@ -51,3 +53,24 @@ class Utils(object):
 
         return al_result_dict
 
+    @classmethod
+    def write_daily_alert(cls, symbol, data):
+        """
+        write daily stock alert to MongoDB.
+        :param symbol: Arctic symbol
+        :param data: dict, like: {'stock': '000651', 'action': 'buy/sell'}
+        :return: None
+        """
+
+        mongo_host = conf.MONGO_HOST
+        lib_name = conf.DAILY_STOCK_ALERT_LIBNAME
+        store = arctic.Arctic(mongo_host)
+        if lib_name not in store.list_libraries():
+            store.initialize_library(lib_name)
+        lib = store[lib_name]
+
+        df = pd.DataFrame([data], columns=data.keys())
+        if symbol in lib.list_symbols():
+            lib.append(symbol, df)
+        else:
+            lib.write(symbol, df)
