@@ -70,11 +70,19 @@ class TsHisData(object):
 
         self._init_coll()
 
-        # get last day's data as delta
+        # get yesterday's data as delta
         end = dt.datetime.now() - dt.timedelta(days=1)
         start = end
         if self._coll_name in self._new_added_colls:
             return
+
+        # If yesterday's data already exist, return
+        data = self.get_data()
+        latest_date = data.index[-1]
+
+        if latest_date.date() == end.date():
+            return
+
         his_data = ts.get_hist_data(code=self._coll_name, start=dt.datetime.strftime(start, '%Y-%m-%d'),
                                     end=dt.datetime.strftime(end, '%Y-%m-%d'), retry_count=5)
         if len(his_data) == 0:
