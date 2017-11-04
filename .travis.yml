@@ -16,7 +16,7 @@ services:
 
 # command to install dependencies
 install:
-  - grep -Ev '^#' requirements.txt | awk -F' #' '{print $1}' | xargs -n 1 -L 1 pip install
+  - grep -Ev '^#' requirements.txt | awk -F'# ' '{print $1}' | xargs -n 1 -L 1 pip install
 
 # command to run tests
 before_script:
