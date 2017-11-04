@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 import gevent.pool
 import gevent.monkey
-gevent.monkey.patch_all()
-
-import gevent.pool
 import tushare as ts
 import backtradercn.datas.tushare as bdt
 from backtradercn.libs.log import logging
 
+gevent.monkey.patch_all()
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +30,7 @@ def download_delta_data(stocks, pool_size=40):
 
 
 if __name__ == '__main__':
-    #download_delta_data(['000651'])
+    # download_delta_data(['000651'])
 
     top_hs300 = ts.get_hs300s()
     stock_pools = ts.get_hs300s()['code'].tolist() if 'code' in top_hs300 else []
