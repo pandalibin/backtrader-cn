@@ -1,5 +1,6 @@
 import unittest
 import backtradercn.datas.tushare as bdt
+from backtradercn.settings import settings as conf
 import unittest.mock as um
 import pandas as pd
 import datetime as dt
@@ -23,7 +24,7 @@ class TsHisDataTestCase(unittest.TestCase):
         ts_his_data = bdt.TsHisData(coll_name)
 
         store = arctic.Arctic('localhost')
-        store.delete_library(bdt.TsHisData.LIB_NAME)
+        store.delete_library(conf.CN_STOCK_LIBNAME)
 
         ts_his_data.download_delta_data()
 
@@ -54,7 +55,7 @@ class TsHisDataTestCase(unittest.TestCase):
         ts_his_data = bdt.TsHisData(coll_name)
 
         store = arctic.Arctic('localhost')
-        store.delete_library(bdt.TsHisData.LIB_NAME)
+        store.delete_library(conf.CN_STOCK_LIBNAME)
 
         ts_his_data.download_delta_data()
 
