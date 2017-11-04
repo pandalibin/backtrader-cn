@@ -2,6 +2,7 @@
 import gevent.monkey
 gevent.monkey.patch_all()
 
+import gevent.pool
 import tushare as ts
 import backtradercn.datas.tushare as bdt
 from backtradercn.libs.log import logging
