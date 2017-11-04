@@ -23,7 +23,8 @@ class MATrendStrategy(bt.Strategy):
     params = dict(
         ma_periods=dict(
             ma_period_s=15,
-            ma_period_l=60
+            ma_period_l=60,
+            stock_id=0
         )
     )
 
@@ -73,18 +74,26 @@ class MATrendStrategy(bt.Strategy):
         if order.status in [order.Completed]:
             if order.isbuy():
                 bsu.Utils.log(self.datas[0].datetime.date(),
-                              'BUY Executed, portfolio value is %.2f' % self.broker.get_value())
+                              'Stock %s buy Executed, portfolio value is %.2f' %
+                              (self.params.ma_periods.get('stock_id'),
+                               self.broker.get_value()))
             else:
                 bsu.Utils.log(self.datas[0].datetime.date(),
-                              'SELL Executed, portfolio value is %.2f' % self.broker.get_value())
+                              'Stock %s sell Executed, portfolio value is %.2f' %
+                              (self.params.ma_periods.get('stock_id'),
+                               self.broker.get_value()))
 
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             if order.isbuy():
                 bsu.Utils.log(self.datas[0].datetime.date(),
-                              'Buy order Canceled/Margin/Rejected, order_status is %d' % order.status)
+                              'Stock %s buy order Canceled/Margin/Rejected, order_status is %d' %
+                              (self.params.ma_periods.get('stock_id'),
+                               order.status))
             else:
                 bsu.Utils.log(self.datas[0].datetime.date(),
-                              'Sell order Canceled/Margin/Rejected, order_status is %d' % order.status)
+                              'Stock %s sell order Canceled/Margin/Rejected, order_status is %d' %
+                              (self.params.ma_periods.get('stock_id'),
+                               order.status))
 
         self.order = None
 
@@ -100,10 +109,11 @@ class MATrendStrategy(bt.Strategy):
         return ts_his_data.get_data()
 
     @classmethod
-    def get_params_list(cls, training_data):
+    def get_params_list(cls, training_data, stock_id):
         """
         Get the params list for finding the best strategy.
-        :param training_data: data for training.
+        :param training_data(DateFrame): data for training.
+        :param stock_id(integer): stock on which strategy works.
         :return: list(dict)
         """
         params_list = []
@@ -117,21 +127,23 @@ class MATrendStrategy(bt.Strategy):
             for j in range(i + 1, data_len, 5):
                 params = dict(
                     ma_period_s=i,
-                    ma_period_l=j
+                    ma_period_l=j,
+                    stock_id=stock_id
                 )
                 params_list.append(params)
 
         return params_list
 
     @classmethod
-    def train_strategy(cls, training_data):
+    def train_strategy(cls, training_data, stock_id):
         """
         Find the optimized parameter of the stategy by using training data.
         :param training_data(DataFrame): data used to train the strategy.
+        :param stock_id(integer): stock on which the strategy works.
         :return: params(dict)
         """
         # get the params list
-        params_list = cls.get_params_list(training_data)
+        params_list = cls.get_params_list(training_data, stock_id)
 
         al_results = []
 
@@ -171,11 +183,13 @@ class MATrendStrategy(bt.Strategy):
         params = best_al_result.get('params')
         ma_periods = params.ma_periods
 
-        logger.debug('Best parma is ma_period_s: %d, ma_period_l: %d' %
-                      (
-                          ma_periods.get('ma_period_s'),
-                          ma_periods.get('ma_period_l')
-                      ))
+        logger.debug('Stock %s best parma is ma_period_s: %d, ma_period_l: %d' %
+                     (
+                         ma_periods.get('stock_id'),
+                         ma_periods.get('ma_period_s'),
+                         ma_periods.get('ma_period_l')
+
+                     ))
 
         return params
 
@@ -195,7 +209,8 @@ class MATrendStrategy(bt.Strategy):
         cerebro.adddata(data)
         ma_periods = params.ma_periods
         cerebro.addstrategy(cls, ma_periods=dict(ma_period_s=ma_periods.get('ma_period_s'),
-                                                 ma_period_l=ma_periods.get('ma_period_l')))
+                                                 ma_period_l=ma_periods.get('ma_period_l'),
+                                                 stock_id=ma_periods.get('stock_id')))
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
                             timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
 
@@ -203,11 +218,12 @@ class MATrendStrategy(bt.Strategy):
 
         cerebro.broker.set_cash(bsu.Utils.DEFAULT_CASH)
 
-        logger.debug('=========Starting back testing, params is ma_period_s: %d, ma_period_l: %d...' %
-                      (
-                          ma_periods.get('ma_period_s'),
-                          ma_periods.get('ma_period_l')
-                      ))
+        logger.debug('=========Starting back testing, stock is %s, params is ma_period_s: %d, ma_period_l: %d...' %
+                     (
+                         ma_periods.get('stock_id'),
+                         ma_periods.get('ma_period_s'),
+                         ma_periods.get('ma_period_l')
+                     ))
 
         strats = cerebro.run()
         strat = strats[0]
@@ -216,6 +232,7 @@ class MATrendStrategy(bt.Strategy):
             total_return_rate = v
 
         al_result = dict(
+            stock_id=ma_periods.get('stock_id'),
             trading_days=length,
             total_return_rate=total_return_rate,
             max_drawdown=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdown'),

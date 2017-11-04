@@ -33,7 +33,7 @@ class Task(object):
         training_data, testing_data = bsu.Utils.split_data(data)
 
         # Find the optimized parameter by using training data
-        best_param = self._Strategy.train_strategy(training_data)
+        best_param = self._Strategy.train_strategy(training_data, self._stock_id)
 
         # Run back testing, get the analysis data
         result = self._Strategy.run_back_testing(testing_data, best_param)
