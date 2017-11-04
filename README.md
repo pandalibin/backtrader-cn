@@ -16,6 +16,7 @@
 
 	$ brew install mongodb
 	$ brew services start mongodb
+	$ xcode-select --install  # 安装`arctic`模块报错提示缺少`limits.h`
 
 ##### Ubuntu/Debian
 
@@ -24,16 +25,18 @@
 
 python 版本
 
-    $ python --version
-    Python 3.6.0
+	$ python --version
+	Python 3.6.0
 
 安装 Python modules
 
-	$ pip install -U -r requirements.txt
+> ~~$ pip install -U -r requirements.txt~~
 
-如果安装`arctic`模块报错提示缺少`limits.h`, mac系统需要安装
+> `pip install -r requirements.txt` 会并行安装 Python modules。
+>
+> `tushare` 没有将它安装时依赖的包在 `setup.py` 的 `install_requires` 中做声明，导致如果在 `lxml` 安装之前安装 `tushare` 就会报错。
 
-    $ xcode-select --install
+	$ grep -Ev '^#' requirements.txt | awk -F' #' '{print $1}' | xargs -n 1 -L 1 pip install
 
 获取股票数据
 
