@@ -1,5 +1,6 @@
-beautifulsoup4
-lxml
+beautifulsoup4 # tushare require
+lxml # tushare require
+xlrd # tushare require
 pandas==0.20.1
 coverage
 codecov
