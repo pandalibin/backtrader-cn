@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import arctic
 import datetime as dt
-import backtradercn.datas.utils as bdu
-from backtradercn.config.log import logging
 import tushare as ts
+import arctic
+
+import backtradercn.datas.utils as bdu
+from backtradercn.settings import settings as conf
+from backtradercn.libs.log import logging
 
 
 logger = logging.getLogger(__name__)
@@ -18,10 +20,11 @@ class TsHisData(object):
         coll_name(string): stock id like '000651' for gree.
 
     """
-    DB_ADDR = bdu.Utils.DB_ADDR
-    LIB_NAME = 'ts_his_lib'
 
     def __init__(self, coll_name):
+        self._lib_name = conf.CN_STOCK_LIBNAME
+        # PyMongo is not fork-safe: http://api.mongodb.com/python/current/faq.html#pymongo-fork-safe
+        self._store = arctic.Arctic(conf.MONGO_HOST)
         self._coll_name = coll_name
         self._library = None
         self._unused_cols = ['price_change', 'p_change', 'ma5', 'ma10', 'ma20',
@@ -58,13 +61,12 @@ class TsHisData(object):
         3. Store the data to arctic.
         :return: None
         """
-        store = arctic.Arctic(TsHisData.DB_ADDR)
 
         # if library is not initialized
-        if TsHisData.LIB_NAME not in store.list_libraries():
-            self._library = store.initialize_library(TsHisData.LIB_NAME)
+        if self._lib_name not in self._store.list_libraries():
+            self._library = self._store.initialize_library(self._lib_name)
 
-        self._library = store[TsHisData.LIB_NAME]
+        self._library = self._store[self._lib_name]
 
         self._init_coll()
 
@@ -89,8 +91,7 @@ class TsHisData(object):
         Get all the data of one collection.
         :return: data(DataFrame)
         """
-        store = arctic.Arctic(TsHisData.DB_ADDR)
-        self._library = store[TsHisData.LIB_NAME]
+        self._library = self._store[self._lib_name]
 
         data = self._library.read(self._coll_name).data
         # parse the date

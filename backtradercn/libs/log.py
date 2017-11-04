@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+import os
 import logging
+from datetime import datetime
 from logging.config import dictConfig
+from backtradercn.settings import settings as conf
 
 
-LOG_PATH = (
-    '/tmp/backtradercn-'
+LOG_PATH = os.path.join(
+    conf.LOG_DIR,
     f'{datetime.now().strftime("%Y%m%d-%H%M%S-%f")}.log'
 )
 

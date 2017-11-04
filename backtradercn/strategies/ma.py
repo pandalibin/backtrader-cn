@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import backtrader as bt
-import backtradercn.strategies.utils as bsu
-import backtradercn.datas.tushare as bdt
-from backtradercn.config.log import logging
-import math
 import datetime as dt
-import backtradercn.analyzers.drawdown as bad
+import math
 
+import backtrader as bt
+
+import backtradercn.analyzers.drawdown as bad
+import backtradercn.datas.tushare as bdt
+import backtradercn.strategies.utils as bsu
+from backtradercn.libs.log import logging
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class MATrendStrategy(bt.Strategy):
     def get_data(cls, coll_name):
         """
         Get the time serials used by strategy.
-        :param coll_name(string): stock id.
+        :param coll_name: stock id (string).
         :return: time serials(DataFrame).
         """
         ts_his_data = bdt.TsHisData(coll_name)
