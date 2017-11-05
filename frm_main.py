@@ -47,7 +47,6 @@ def back_test(stock):
 def main():
     top_hs300 = ts.get_hs300s()
     stock_pools = ts.get_hs300s()['code'].tolist() if 'code' in top_hs300 else []
-    stock_pools = stock_pools[:5]
     processes = multiprocessing.cpu_count()
     # run subprocess in parallel, the number of processes is: `processes`
     for i in range(len(stock_pools) // processes + 1):
