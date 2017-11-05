@@ -1,11 +1,11 @@
 import datetime as dt
-import arctic
 import json
 
-from backtradercn.settings import settings as conf
-from backtradercn.libs.log import logging
-from backtradercn.wechat.robot import WeChatClient
+import arctic
 
+from backtradercn.libs.log import logging
+from backtradercn.libs.wechat import WeChatClient
+from backtradercn.settings import settings as conf
 
 logger = logging.getLogger(__name__)
 
