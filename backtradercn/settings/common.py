@@ -4,6 +4,7 @@ PROJECT_NAME = 'backtradercn'
 
 # log setting
 LOG_DIR = '/tmp/'
+LOG_LEVEL = 'DEBUG'
 
 # database setting
 MONGO_HOST = 'localhost'
