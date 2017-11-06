@@ -23,7 +23,7 @@ def download_delta_data(stocks, pool_size=40):
         start = i * pool_size
         end = (i + 1) * pool_size
         lst = stocks[start:end]
-        logger.debug(f'fast download delta data for stock list: {lst}')
+        logger.debug(f'download delta data for stock list: {lst}')
         for stock in lst:
             pool.spawn(bdt.TsHisData.download_one_delta_data, stock)
         pool.join(timeout=30)
@@ -32,6 +32,6 @@ def download_delta_data(stocks, pool_size=40):
 if __name__ == '__main__':
     # download_delta_data(['000651'])
 
-    top_hs300 = ts.get_hs300s()
-    stock_pools = ts.get_hs300s()['code'].tolist() if 'code' in top_hs300 else []
+    hs300s = ts.get_hs300s()
+    stock_pools = hs300s['code'].tolist() if 'code' in hs300s else []
     download_delta_data(stock_pools)
