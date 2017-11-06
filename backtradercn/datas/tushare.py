@@ -70,28 +70,30 @@ class TsHisData(object):
 
         self._init_coll()
 
-        # get yesterday's data as delta
-        end = dt.datetime.now() - dt.timedelta(days=1)
-        start = end
         if self._coll_name in self._new_added_colls:
             return
 
-        # If yesterday's data already exist, return
-        data = self.get_data()
-        latest_date = data.index[-1]
+        # 15:00 PM can get today data
+        # start = latest_date + 1 day
+        latest_date = self.get_data().index[-1]
+        start = latest_date + dt.timedelta(days=1)
+        start = dt.datetime.strftime(start, '%Y-%m-%d')
 
-        if latest_date.date() == end.date():
-            return
+        his_data = ts.get_hist_data(
+            code=self._coll_name,
+            start=start,
+            retry_count=5
+        )
 
-        his_data = ts.get_hist_data(code=self._coll_name, start=dt.datetime.strftime(start, '%Y-%m-%d'),
-                                    end=dt.datetime.strftime(end, '%Y-%m-%d'), retry_count=5)
+        # delta data is empty
         if len(his_data) == 0:
-            logger.warning('delta data of stock %s from tushare is empty' % self._coll_name)
+            logger.info(
+                f'delta data of stock {self._coll_name} is empty, after {start}')
             return
 
         his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)
 
-        logger.debug(f'stock code: {self._coll_name}')
+        logger.info(f'got delta data of stock: {self._coll_name}, after {start}')
         self._library.append(self._coll_name, his_data)
 
     def get_data(self):
@@ -121,7 +123,9 @@ class TsHisData(object):
             self._new_added_colls.append(self._coll_name)
             his_data = ts.get_hist_data(code=self._coll_name, retry_count=5).sort_index()
             if len(his_data) == 0:
-                logger.warning('data of stock %s from tushare when initiation is empty' % self._coll_name)
+                logger.warning(
+                    f'data of stock {self._coll_name} when initiation is empty'
+                )
                 return
 
             his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)
