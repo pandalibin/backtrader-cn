@@ -24,7 +24,7 @@ else:
     log_format = '%(name)s:%(lineno)d %(levelname)s: %(message)s'
     logging.basicConfig(format=log_format)
     logger = logging.getLogger(__name__)
-    logger.info(
+    logger.warning(
         'Do not set the environment variable: `DEPLOY_ENV`, '
         'using the default value: `dev`.'
     )
