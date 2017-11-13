@@ -101,5 +101,4 @@ ENV/
 .mypy_cache/
 .idea
 .DS_Store
-tt_main.py
-orcl-1995-2014.txt
+backtradercn.tar.gz
