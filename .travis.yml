@@ -26,7 +26,5 @@ script:
 
 after_success:
   - codecov
-
-deploy:
   - fab pack
   - fab deploy
