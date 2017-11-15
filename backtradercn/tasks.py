@@ -30,12 +30,20 @@ class Task(object):
         data = self._Strategy.get_data(self._stock_id)
 
         # Split the data
-        training_data, testing_data = bsu.Utils.split_data(data)
+        # training_data, testing_data = bsu.Utils.split_data(data)
 
         # Find the optimized parameter by using training data
-        best_param = self._Strategy.train_strategy(training_data, self._stock_id)
+        # best_param = self._Strategy.train_strategy(training_data, self._stock_id)
 
+        best_param = dict(
+            ma_periods=dict(
+                ma_period_s=10,
+                ma_period_l=20,
+                stock_id=self._stock_id
+
+            )
+        )
         # Run back testing, get the analysis data
-        result = self._Strategy.run_back_testing(testing_data, best_param)
+        result = self._Strategy.run_back_testing(data, best_param)
 
         return result

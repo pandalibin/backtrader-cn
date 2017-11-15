@@ -14,20 +14,20 @@ class Utils(object):
 
     DEFAULT_CASH = 10000.0
 
-    @classmethod
-    def split_data(cls, data, percent=0.3):
-        """
-        Split the data into training data and test data.
-        :param data(DataFrame): data to be split.
-        :param percent(float): percent of data used as training data.
-        :return: training data(DataFrame) and testing data(DataFrame)
-        """
-
-        rows = len(data)
-        train_rows = math.floor(rows * percent)
-        test_rows = rows - train_rows
-
-        return data.iloc[:train_rows], data.iloc[-test_rows:]
+    # @classmethod
+    # def split_data(cls, data, percent=0.3):
+    #     """
+    #     Split the data into training data and test data.
+    #     :param data(DataFrame): data to be split.
+    #     :param percent(float): percent of data used as training data.
+    #     :return: training data(DataFrame) and testing data(DataFrame)
+    #     """
+    #
+    #     rows = len(data)
+    #     train_rows = math.floor(rows * percent)
+    #     test_rows = rows - train_rows
+    #
+    #     return data.iloc[:train_rows], data.iloc[-test_rows:]
 
     @classmethod
     def log(cls, dt, txt):

@@ -24,7 +24,7 @@ class MATrendStrategy(bt.Strategy):
         ma_periods=dict(
             ma_period_s=15,
             ma_period_l=60,
-            stock_id=0
+            stock_id='0'
         )
     )
 
@@ -146,64 +146,64 @@ class MATrendStrategy(bt.Strategy):
 
         return params_list
 
-    @classmethod
-    def train_strategy(cls, training_data, stock_id):
-        """
-        Find the optimized parameter of the stategy by using training data.
-        :param training_data(DataFrame): data used to train the strategy.
-        :param stock_id(integer): stock on which the strategy works.
-        :return: params(dict)
-        """
-        # get the params list
-        params_list = cls.get_params_list(training_data, stock_id)
-
-        al_results = []
-
-        cerebro = bt.Cerebro()
-        data = bt.feeds.PandasData(dataname=training_data)
-
-        cerebro.adddata(data)
-        cerebro.optstrategy(cls, ma_periods=params_list)
-        cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
-                            timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
-        cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
-
-        cerebro.broker.setcash(bsu.Utils.DEFAULT_CASH)
-
-        logger.debug('=========Starting train the strategy...')
-
-        results = cerebro.run()
-
-        for result in results:
-            params = result[0].params
-            analyzers = result[0].analyzers
-            al_return_rate = analyzers.al_return.get_analysis()
-            total_return_rate = 0.0
-            for k, v in al_return_rate.items():
-                total_return_rate = v
-            al_result = dict(
-                params=params,
-                total_return_rate=total_return_rate,
-                max_drawdown=analyzers.al_max_drawdown.get_analysis().get('maxdrawdown'),
-                max_drawdown_period=analyzers.al_max_drawdown.get_analysis().get('maxdrawdownperiod')
-            )
-            al_results.append(al_result)
-
-        # Get the best params
-        best_al_result = bsu.Utils.get_best_params(al_results)
-
-        params = best_al_result.get('params')
-        ma_periods = params.ma_periods
-
-        logger.debug('Stock %s best parma is ma_period_s: %d, ma_period_l: %d' %
-                     (
-                         ma_periods.get('stock_id'),
-                         ma_periods.get('ma_period_s'),
-                         ma_periods.get('ma_period_l')
-
-                     ))
-
-        return params
+    # @classmethod
+    # def train_strategy(cls, training_data, stock_id):
+    #     """
+    #     Find the optimized parameter of the stategy by using training data.
+    #     :param training_data(DataFrame): data used to train the strategy.
+    #     :param stock_id(integer): stock on which the strategy works.
+    #     :return: params(dict like {ma_periods: dict{ma_period_s: 1, ma_period_l: 2, stock_id: '0'}}
+    #     """
+    #     # get the params list
+    #     params_list = cls.get_params_list(training_data, stock_id)
+    #
+    #     al_results = []
+    #
+    #     cerebro = bt.Cerebro()
+    #     data = bt.feeds.PandasData(dataname=training_data)
+    #
+    #     cerebro.adddata(data)
+    #     cerebro.optstrategy(cls, ma_periods=params_list)
+    #     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='al_return',
+    #                         timeframe=bt.analyzers.TimeFrame.NoTimeFrame)
+    #     cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='al_max_drawdown')
+    #
+    #     cerebro.broker.setcash(bsu.Utils.DEFAULT_CASH)
+    #
+    #     logger.debug('=========Starting train the strategy...')
+    #
+    #     results = cerebro.run()
+    #
+    #     for result in results:
+    #         params = result[0].params
+    #         analyzers = result[0].analyzers
+    #         al_return_rate = analyzers.al_return.get_analysis()
+    #         total_return_rate = 0.0
+    #         for k, v in al_return_rate.items():
+    #             total_return_rate = v
+    #         al_result = dict(
+    #             params=params,
+    #             total_return_rate=total_return_rate,
+    #             max_drawdown=analyzers.al_max_drawdown.get_analysis().get('maxdrawdown'),
+    #             max_drawdown_period=analyzers.al_max_drawdown.get_analysis().get('maxdrawdownperiod')
+    #         )
+    #         al_results.append(al_result)
+    #
+    #     # Get the best params
+    #     best_al_result = bsu.Utils.get_best_params(al_results)
+    #
+    #     params = best_al_result.get('params')
+    #     ma_periods = params.ma_periods
+    #
+    #     logger.debug('Stock %s best parma is ma_period_s: %d, ma_period_l: %d' %
+    #                  (
+    #                      ma_periods.get('stock_id'),
+    #                      ma_periods.get('ma_period_s'),
+    #                      ma_periods.get('ma_period_l')
+    #
+    #                  ))
+    #
+    #     return params
 
     @classmethod
     def run_back_testing(cls, testing_data, params):
@@ -219,7 +219,7 @@ class MATrendStrategy(bt.Strategy):
         length = len(testing_data)
 
         cerebro.adddata(data)
-        ma_periods = params.ma_periods
+        ma_periods = params.get('ma_periods')
         cerebro.addstrategy(cls, ma_periods=dict(ma_period_s=ma_periods.get('ma_period_s'),
                                                  ma_period_l=ma_periods.get('ma_period_l'),
                                                  stock_id=ma_periods.get('stock_id')))
@@ -251,5 +251,7 @@ class MATrendStrategy(bt.Strategy):
             max_drawdown_period=strat.analyzers.al_max_drawdown.get_analysis().get('maxdrawdownperiod'),
             drawdown_points=strat.analyzers.al_max_drawdown.get_analysis().get('drawdownpoints')
         )
+
+        # cerebro.plot()
 
         return al_result
