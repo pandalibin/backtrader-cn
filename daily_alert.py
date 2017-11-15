@@ -10,7 +10,7 @@ from backtradercn.settings import settings as conf
 logger = logging.getLogger(__name__)
 
 
-def send_daily_alert():
+def get_buy_sell_list():
     msg = {
         'buy': [],
         'sell': [],
@@ -32,6 +32,12 @@ def send_daily_alert():
                 msg['buy'].append(item['stock'])
             elif item['action'] == 'sell':
                 msg['sell'].append(item['stock'])
+
+    return msg
+
+
+def send_daily_alert():
+    msg = get_buy_sell_list()
 
     # send notification via wechat
     wx_client = WeChatClient({
