@@ -10,4 +10,3 @@ tushare
 arctic
 WeRoBot==1.1.1
 gevent
-Fabric3==1.13.1.post1

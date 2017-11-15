@@ -26,6 +26,4 @@ script:
 
 after_success:
   - codecov
-  - curl -X POST http://35.189.182.250/webhook
-  - fab pack
-  - fab deploy
+  - curl -X POST http://35.194.246.210:80/hooks/travis
