@@ -109,3 +109,5 @@ class TsHisDataTestCase(unittest.TestCase):
         self.assertEqual(len(hist_data_000651), 3)
         self.assertEqual(dt.datetime.strftime(hist_data_000651.index[-1], '%Y-%m-%d'),
                          dt.datetime.strftime(yesterday, '%Y-%m-%d'))
+        store = arctic.Arctic('localhost')
+        store.delete_library(conf.CN_STOCK_LIBNAME)
