@@ -54,3 +54,33 @@ python 版本
 计算入场信号
 
 	$ python frm_main.py
+
+### 参与项目开发
+
+#### 安装项目需要的 `Python modules`
+
+	$ make pip
+
+#### Python code check
+
+##### git hooks
+
+提交代码前运行 `git-pylint-commit-hook`
+
+`.git/hooks/pre-commit` 文件内容：
+
+	$ cat .git/hooks/pre-commit
+	#!/usr/bin/env bash
+	git-pylint-commit-hook
+
+添加执行权限:
+
+	$ chmod +x .git/hooks/pre-commit
+
+##### 自己运行 `pylint`
+
+	$ make lint
+
+##### 集成 Pylint 到 PyCharm
+
+[Integrate Pylint with PyCharm](https://docs.pylint.org/en/latest/user_guide/ide-integration.html#integrate-pylint-with-pycharm)

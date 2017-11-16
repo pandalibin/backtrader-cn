@@ -2,3 +2,4 @@ coverage
 codecov
 nose
 pylint
+git-pylint-commit-hook
