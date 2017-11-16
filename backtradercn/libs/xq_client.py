@@ -130,17 +130,17 @@ class XueQiuClient(WebTrader):
             raise TradeError("获取创建组合的token信息失败: %s" % response.text)
         return token_response['token']
 
-    def create_cubes(self, cubes_prefix, stock_code, weight, description="", market='cn'):
-        """创建组合
+    def create_cubes(self, stock_code, weight, cubes_prefix="SC", description="", market='cn'):
+        """创建组合, 并设置股票初始买入的百分比
         ** 组合名称默认格式为前缀 + 股票代码
-        :param cubes_prefix: 组合名字的前缀
         :param stock_code: str 股票代码
         :param weight: int 初始仓位的百分比， 0 - 100 之间的整数
+        :param cubes_prefix: 组合名字的前缀
         :param description: 组合描述信息
-        :param market: 市场烦恼, cn: 沪深, us: 美股, hk: 港股
+        :param market: 市场范围, cn: 沪深, us: 美股, hk: 港股
         :return: (是否创建成功, 组合代码, 组合名称)
         """
-        cubes_name = "%s_%s" % (cubes_prefix, stock_code)
+        cubes_name = "%s%s" % (cubes_prefix, stock_code)
         stock = self.__search_stock_info(stock_code)
         if stock is None:
             raise TradeError(u"没有查询要操作的股票信息")
@@ -192,6 +192,8 @@ class XueQiuClient(WebTrader):
                     cubes_res_status['error_code'],
                     cubes_res_status['error_description'],
                 ))
+                if cubes_res_status['error_code'] == '20912':
+                    log.error("组合名称: %s 不符合要求, 请尝试换一个组合名称，组合名称只能是中文，英文，数字(测试时发现某些情况下可以包含下划线)" % cubes_name)
                 return (False, None, None)
             log.debug('创建组合成功 %s: 持仓比例%d, 创建信息: \n%s' % (
                 cubes_name, weight, json.dumps(cubes_res_status, ensure_ascii=False, indent=4)))
@@ -199,7 +201,7 @@ class XueQiuClient(WebTrader):
 
     def get_cubes_list(self, type=4):
         """获取组合详情，默认获取自选组合
-        :param type: 组合名字的前缀, 1: 全部组合。 4: 我的组合。 5: 只看沪深组合。6: 只看美股。7: 只看港股
+        :param type: 组合名字的前缀, 1: 全部组合。 4: 我的组合。 5: 只看沪深组合。 6: 只看美股。7: 只看港股
         :return: 组合列表
         """
         response = self.session.get(self.config['get_cubes_list'], params={
@@ -212,8 +214,8 @@ class XueQiuClient(WebTrader):
             raise TradeError("解析组合列表失败: %s" % response.text)
         if 'stocks' not in cubes_response:
             raise TradeError("获取组合信息失败: %s" % response.text)
-
         cubes_code_list = [cube['code'] for cube in cubes_response['stocks']]
+
         response = self.session.get(self.config['get_cubes_detail'], params={
             "code": ','.join(cubes_code_list),
             "return_hasexist": False,
@@ -226,11 +228,13 @@ class XueQiuClient(WebTrader):
             raise TradeError("获取组合信息失败: %s" % response.text)
         return cubes_detail_response
 
+
 if __name__ == '__main__':
+    from backtradercn.settings import settings as conf
     client = XueQiuClient()
-    client.prepare(account='18628391725', password='gupiao888', portfolio_market='cn')
-    # 创建股票代码为000651, 组合前缀标识符号为T, 初始比例为30%
-    response = client.create_cubes('T', '000651', 30)
+    client.prepare(account=conf.XQ_ACCOUNT, password=conf.XQ_PASSWORD, portfolio_market=conf.XQ_PORTFOLIO_MARKET)
+    # 创建股票代码为000651的组合
+    response = client.create_cubes(stock_code="000651", weight=5, cubes_prefix=conf.XQ_CUBES_PREFIX)
     print(response)
     # 获取自定义组合信息
     cubes_list = client.get_cubes_list()
