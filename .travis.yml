@@ -16,14 +16,13 @@ services:
 
 # command to install dependencies
 install:
-  - grep -Ev '^#' requirements.txt | awk -F'# ' '{print $1}' | xargs -n 1 -L 1 pip install
+  - make pip
 
 # command to run tests
-before_script:
-  - coverage erase
 script:
-  - nosetests --with-coverage --cover-package backtradercn
+  - make test
 
 after_success:
   - codecov
+  - make webhook
   - curl -X POST http://35.194.246.210:80/hooks/travis

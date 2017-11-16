@@ -6,6 +6,16 @@
 
 ### 快速上手
 
+python 版本
+
+	$ python --version
+	Python 3.6.0
+
+注：
+
+- 项目中使用了 `f-string`，所以，需要 `Python 3.6` 以上的版本。
+- 可以使用 `pyenv` 安装不同版本的 `Python`，用 `pyenv virtualenv` 创建彼此独立的环境。
+
 #### 下载代码
 
 	$ git clone https://github.com/pandalibin/backtrader-cn.git
@@ -14,19 +24,18 @@
 
 ##### Mac OSX
 
+安装项目需要的软件包：
+
 	$ brew install mongodb
 	$ brew services start mongodb
 	$ xcode-select --install  # 安装`arctic`模块报错提示缺少`limits.h`
 
 ##### Ubuntu/Debian
 
+安装项目需要的软件包：
+
 	$ sudo apt-get install gcc build-essential  # arctic
 	$ sudo apt-get install mongodb
-
-python 版本
-
-	$ python --version
-	Python 3.6.0
 
 安装 Python modules
 
@@ -36,7 +45,7 @@ python 版本
 >
 > `tushare` 没有将它安装时依赖的包在 `setup.py` 的 `install_requires` 中做声明，导致如果在 `lxml` 安装之前安装 `tushare` 就会报错。
 
-	$ grep -Ev '^#' requirements.txt | awk -F' #' '{print $1}' | xargs -n 1 -L 1 pip install
+	$ make pip
 
 获取股票数据
 
