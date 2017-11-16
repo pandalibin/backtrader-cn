@@ -6,6 +6,10 @@ deploy: clean
 	@echo "upload source code to remote server ..."
 	@rsync -raPH -e ssh --delete ./ gvm-tw-backtradercn:/data/web/backtrader-cn
 
+test:
+	coverage erase
+	nosetests --with-coverage --cover-package backtradercn
+
 clean:
 	@echo "make clean ..."
 	@find ./ -name '*.pyc' -exec rm -rf {} \;
