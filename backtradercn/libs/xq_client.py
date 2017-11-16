@@ -3,6 +3,7 @@ import json
 import os
 from json import JSONDecodeError
 
+import re
 import requests
 
 from easytrader.log import log
@@ -115,7 +116,7 @@ class XueQiuClient(WebTrader):
             stock = stocks[0]
         return stock
 
-    def __get_create_cubes_token(self):
+    def __get_create_cube_token(self):
         """获取创建组合时需要的token信息
         :return: token
         """
@@ -130,17 +131,21 @@ class XueQiuClient(WebTrader):
             raise TradeError("获取创建组合的token信息失败: %s" % response.text)
         return token_response['token']
 
-    def create_cubes(self, stock_code, weight, cubes_prefix="SC", description="", market='cn'):
+    @staticmethod
+    def get_cube_name(cube_prefix, stock_code):
+        return "%s%s" % (cube_prefix, stock_code)
+
+    def create_cube(self, stock_code, weight, cube_prefix="SC", description="", market='cn'):
         """创建组合, 并设置股票初始买入的百分比
         ** 组合名称默认格式为前缀 + 股票代码
         :param stock_code: str 股票代码
         :param weight: int 初始仓位的百分比， 0 - 100 之间的整数
-        :param cubes_prefix: 组合名字的前缀
+        :param cube_prefix: 组合名字的前缀
         :param description: 组合描述信息
         :param market: 市场范围, cn: 沪深, us: 美股, hk: 港股
         :return: (是否创建成功, 组合代码, 组合名称)
         """
-        cubes_name = "%s%s" % (cubes_prefix, stock_code)
+        cube_name = self.get_cube_name(cube_prefix, stock_code)
         stock = self.__search_stock_info(stock_code)
         if stock is None:
             raise TradeError(u"没有查询要操作的股票信息")
@@ -170,34 +175,34 @@ class XueQiuClient(WebTrader):
             }
         ]
 
-        create_cubes_data = {
-            "name": cubes_name,
+        create_cube_data = {
+            "name": cube_name,
             "cash": 100 - weight,
             "description": description,
             "market": market,
             "holdings": json.dumps(holdings),
-            "session_token": self.__get_create_cubes_token(),
+            "session_token": self.__get_create_cube_token(),
         }
         try:
-            cubes_res = self.session.post(self.config['create_cubes_url'], data=create_cubes_data)
+            cube_res = self.session.post(self.config['create_cubes_url'], data=create_cube_data)
         except Exception as e:
-            log.warn('创建组合%s失败: %s ' % (cubes_name, e))
+            log.warn('创建组合%s失败: %s ' % (cube_name, e))
             return (False, None, None)
         else:
-            log.debug('创建组合%s: 持仓比例%d' % (cubes_name, weight))
-            cubes_res_status = json.loads(cubes_res.text)
-            if 'error_description' in cubes_res_status.keys() and cubes_res.status_code != 200:
+            log.debug('创建组合%s: 持仓比例%d' % (cube_name, weight))
+            cube_res_status = json.loads(cube_res.text)
+            if 'error_description' in cube_res_status.keys() and cube_res.status_code != 200:
                 log.error('创建组合错误: %s, error_no: %s, error_info: %s' % (
-                    cubes_res_status['error_description'],
-                    cubes_res_status['error_code'],
-                    cubes_res_status['error_description'],
+                    cube_res_status['error_description'],
+                    cube_res_status['error_code'],
+                    cube_res_status['error_description'],
                 ))
-                if cubes_res_status['error_code'] == '20912':
-                    log.error("组合名称: %s 不符合要求, 请尝试换一个组合名称，组合名称只能是中文，英文，数字(测试时发现某些情况下可以包含下划线)" % cubes_name)
+                if cube_res_status['error_code'] == '20912':
+                    log.error("组合名称: %s 不符合要求, 请尝试换一个组合名称，组合名称只能是中文，英文，数字(测试时发现某些情况下可以包含下划线)" % cube_name)
                 return (False, None, None)
             log.debug('创建组合成功 %s: 持仓比例%d, 创建信息: \n%s' % (
-                cubes_name, weight, json.dumps(cubes_res_status, ensure_ascii=False, indent=4)))
-            return (True, cubes_res_status['symbol'], cubes_name)
+                cube_name, weight, json.dumps(cube_res_status, ensure_ascii=False, indent=4)))
+            return (True, cube_res_status['symbol'], cube_name)
 
     def get_cubes_list(self, type=4):
         """获取组合详情，默认获取自选组合
@@ -228,13 +233,32 @@ class XueQiuClient(WebTrader):
             raise TradeError("获取组合信息失败: %s" % response.text)
         return cubes_detail_response
 
+    def get_portfolio_info(self, portfolio_code):
+        """
+        获取组合信息
+        :return: 字典
+        """
+        url = self.config['portfolio_url'] + portfolio_code
+        html = self.__get_html(url)
+        match_info = re.search(r'(?<=SNB.cubeInfo = ).*(?=;\n)', html)
+        if match_info is None:
+            raise Exception('cant get portfolio info, portfolio html : {}'.format(html))
+        try:
+            portfolio_info = json.loads(match_info.group())
+        except Exception as e:
+            raise Exception('get portfolio info error: {}'.format(e))
+        return portfolio_info
+
+    def __get_html(self, url):
+        return self.session.get(url).text
 
 if __name__ == '__main__':
     from backtradercn.settings import settings as conf
+
     client = XueQiuClient()
     client.prepare(account=conf.XQ_ACCOUNT, password=conf.XQ_PASSWORD, portfolio_market=conf.XQ_PORTFOLIO_MARKET)
     # 创建股票代码为000651的组合
-    response = client.create_cubes(stock_code="000651", weight=5, cubes_prefix=conf.XQ_CUBES_PREFIX)
+    response = client.create_cube(stock_code="000651", weight=5, cube_prefix=conf.XQ_CUBES_PREFIX)
     print(response)
     # 获取自定义组合信息
     cubes_list = client.get_cubes_list()
