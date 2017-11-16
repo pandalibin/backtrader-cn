@@ -6,7 +6,7 @@ from logging.config import dictConfig
 from backtradercn.settings import settings as conf
 
 
-__all__ = ['logging']
+__all__ = ['getLogger']
 
 
 LOG_PATH = os.path.join(
@@ -65,3 +65,7 @@ dictConfig(logging_config)
 # e.g.: 2010-09-06 22:38:15,292 => 2010-09-06 22:38:15.292
 for h in logging.getLogger().handlers:
     h.formatter.default_msec_format = '%s.%03d'
+
+
+def getLogger(name=None):
+    return logging.getLogger(name)

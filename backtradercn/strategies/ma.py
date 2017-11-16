@@ -7,9 +7,9 @@ import backtrader as bt
 import backtradercn.analyzers.drawdown as bad
 import backtradercn.datas.tushare as bdt
 import backtradercn.strategies.utils as bsu
-from backtradercn.libs.log import logging
+from backtradercn.libs.log import getLogger
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 class MATrendStrategy(bt.Strategy):

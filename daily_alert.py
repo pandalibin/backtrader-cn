@@ -3,11 +3,11 @@ import json
 
 import arctic
 
-from backtradercn.libs.log import logging
+from backtradercn.libs.log import getLogger
 from backtradercn.libs.wechat import WeChatClient
 from backtradercn.settings import settings as conf
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def get_buy_sell_list():

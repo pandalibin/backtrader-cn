@@ -6,9 +6,9 @@ import tushare as ts
 
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
-from backtradercn.libs.log import logging
+from backtradercn.libs.log import getLogger
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def back_test(stock):

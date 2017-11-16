@@ -5,9 +5,9 @@ import pandas as pd
 import arctic
 
 from backtradercn.settings import settings as conf
-from backtradercn.libs.log import logging
+from backtradercn.libs.log import getLogger
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 class Utils(object):
