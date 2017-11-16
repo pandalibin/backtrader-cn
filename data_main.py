@@ -30,8 +30,8 @@ def download_delta_data(stocks, pool_size=40):
 
 
 if __name__ == '__main__':
-    download_delta_data(['000651'])
+    # download_delta_data(['000651'])
 
-    # hs300s = ts.get_hs300s()
-    # stock_pools = hs300s['code'].tolist() if 'code' in hs300s else []
-    # download_delta_data(stock_pools)
+    hs300s = ts.get_hs300s()
+    stock_pools = hs300s['code'].tolist() if 'code' in hs300s else []
+    download_delta_data(stock_pools)
