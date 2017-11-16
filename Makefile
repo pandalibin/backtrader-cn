@@ -1,6 +1,7 @@
 pip:
 	@echo 'pip install Python modules ...'
 	@grep -Ev '^#' requirements.txt | awk -F'# ' '{print $$1}' | xargs -n 1 -L 1 pip install
+	@pip install -U -r dev-requirements.txt
 
 deploy: clean
 	@echo "upload source code to remote server ..."
@@ -15,6 +16,9 @@ webhook:
 	@echo "trigger webhooks ..."
 	@curl -X POST http://35.194.246.210/hooks/travis
 	@curl -X POST http://35.189.182.250/webhook
+
+lint:
+	pylint *.py backtradercn
 
 clean:
 	@echo "make clean ..."

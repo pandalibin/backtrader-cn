@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import logging
+
 from backtradercn.settings import dev
 from backtradercn.settings import test
 from backtradercn.settings import prod
-import logging
 
 
 __all_ = ['settings']
