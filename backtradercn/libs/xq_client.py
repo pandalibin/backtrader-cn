@@ -229,7 +229,7 @@ class XueQiuClient(WebTrader):
 if __name__ == '__main__':
     client = XueQiuClient()
     client.prepare(account='18628391725', password='gupiao888', portfolio_market='cn')
-    # 创建股票代码为000651, 组合前缀标识符号为TEST, 初始比例为30%
+    # 创建股票代码为000651, 组合前缀标识符号为T, 初始比例为30%
     response = client.create_cubes('T', '000651', 30)
     print(response)
     # 获取自定义组合信息
