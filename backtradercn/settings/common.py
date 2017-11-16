@@ -10,6 +10,7 @@ LOG_LEVEL = 'DEBUG'
 MONGO_HOST = 'localhost'
 CN_STOCK_LIBNAME = 'ts_his_lib'
 DAILY_STOCK_ALERT_LIBNAME = 'daily_stock_alert'
+STRATEGY_PARAMS_LIBNAME = 'strategy_params'
 
 # wechat
 WECHAT_APP_ID = 'wx5e8e3c4779887f32'
