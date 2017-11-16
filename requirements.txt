@@ -10,3 +10,4 @@ tushare
 arctic
 WeRoBot==1.1.1
 gevent
+easytrader==0.12.3
