@@ -25,4 +25,3 @@ script:
 after_success:
   - codecov
   - make webhook
-  - curl -X POST http://35.194.246.210:80/hooks/travis
