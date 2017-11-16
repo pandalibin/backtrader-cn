@@ -47,3 +47,6 @@ class Task(object):
         result = self._Strategy.run_back_testing(self._stock_id)
 
         return result
+
+    def train(self):
+        self._Strategy.run_training(self._stock_id)

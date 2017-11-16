@@ -213,6 +213,42 @@ class MATrendStrategy(bt.Strategy):
         return params
 
     @classmethod
+    def run_training(cls, stock_id):
+        # if library does not exist, create it
+        mongo_host = conf.MONGO_HOST
+        lib_name = conf.STRATEGY_PARAMS_LIBNAME
+        store = arctic.Arctic(mongo_host)
+        if lib_name not in store.list_libraries():
+            store.initialize_library(lib_name)
+        lib = store[lib_name]
+
+        symbol = cls.name
+
+        # if symbol does not exist in the library
+        if symbol not in lib.list_symbols():
+            # get the data
+            data = cls.get_data(stock_id)
+
+            # train the strategy for this stock_id to get the params
+            params = cls.train_strategy(data, stock_id)
+
+            params_to_save = dict(stock_id=stock_id, params=params)
+            df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
+            lib.write(symbol, df)
+
+        # else if stock_id does not exist in the symbol
+        elif not cls.is_stock_in_symbol(stock_id, symbol, lib):
+            # get the data
+            data = cls.get_data(stock_id)
+
+            # train the strategy for this stock_id to get the params
+            params = cls.train_strategy(data, stock_id)
+
+            params_to_save = dict(stock_id=stock_id, params=params)
+            df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
+            lib.append(symbol, df)
+
+    @classmethod
     def run_back_testing(cls, stock_id):
         """
         Run the back testing, return the analysis data.
@@ -278,35 +314,8 @@ class MATrendStrategy(bt.Strategy):
         mongo_host = conf.MONGO_HOST
         lib_name = conf.STRATEGY_PARAMS_LIBNAME
         store = arctic.Arctic(mongo_host)
-        if lib_name not in store.list_libraries():
-            store.initialize_library(lib_name)
         lib = store[lib_name]
-
         symbol = cls.name
-
-        # if symbol does not exist in the library
-        if symbol not in lib.list_symbols():
-            # get the data
-            data = cls.get_data(stock_id)
-
-            # train the strategy for this stock_id to get the params
-            params = cls.train_strategy(data, stock_id)
-
-            params_to_save = dict(stock_id=stock_id, params=params)
-            df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
-            lib.write(symbol, df)
-
-        # else if stock_id does not exist in the symbol
-        elif not cls.is_stock_in_symbol(stock_id, symbol, lib):
-            # get the data
-            data = cls.get_data(stock_id)
-
-            # train the strategy for this stock_id to get the params
-            params = cls.train_strategy(data, stock_id)
-
-            params_to_save = dict(stock_id=stock_id, params=params)
-            df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
-            lib.append(symbol, df)
 
         params_list = lib.read(symbol).data
 
