@@ -130,4 +130,5 @@ class TsHisData(object):
 
             his_data = bdu.Utils.strip_unused_cols(his_data, *self._unused_cols)
 
+            logger.debug(f'write history data for stock: {self._coll_name}.')
             self._library.write(self._coll_name, his_data)
