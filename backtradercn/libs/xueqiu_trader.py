@@ -53,15 +53,15 @@ class XueQiuTrader(object):
         :param weight: 股票百分比
         :return:
         """
-        user = easytrader.use('xq')
-        user.prepare(
-            account=self.xq_account,
-            password=self.xq_password,
-            portfolio_market=self.xq_portfolio_market,
-            portfolio_code=symbol
-        )
-
-        user.adjust_weight(stock_code, weight)
+        if not hasattr(self, '_user'):
+            self._user = easytrader.use('xq')
+            self._user.prepare(
+                account=self.xq_account,
+                password=self.xq_password,
+                portfolio_market=self.xq_portfolio_market,
+                portfolio_code=symbol
+            )
+        self._user.adjust_weight(stock_code, weight)
 
     def buy(self, stock_code, weight=conf.XQ_DEFAULT_BUY_WEIGHT):
         """买入股票，默认一次买入指定的百分比数
