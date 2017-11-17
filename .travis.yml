@@ -14,8 +14,8 @@ notifications:
 services:
   - mongodb
 
--# command to install dependencies
--install:
+# command to install dependencies
+install:
   - make pip
 
 # command to run tests coverage report
