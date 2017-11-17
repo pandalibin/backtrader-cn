@@ -56,26 +56,18 @@ def send_daily_alert():
 def update_xueqiu_cubes():
     date = dt.datetime.now().strftime('%Y-%m-%d')
     msg = get_market_signal_by_date(date)
+    trader = XueQiuTrader(
+        xq_account=conf.XQ_ACCOUNT,
+        xq_password=conf.XQ_PASSWORD,
+        xq_portfolio_market=conf.XQ_PORTFOLIO_MARKET,
+        xq_cube_prefix=conf.XQ_CUBES_PREFIX
+    )
 
     for stock_code in msg['buy']:
-        trader = XueQiuTrader(
-            xq_account=conf.XQ_ACCOUNT,
-            xq_password=conf.XQ_PASSWORD,
-            xq_portfolio_market=conf.XQ_PORTFOLIO_MARKET,
-            xq_cube_prefix=conf.XQ_CUBES_PREFIX,
-            stock_code=stock_code
-        )
-        trader.buy()
+        trader.buy(stock_code)
 
     for stock_code in msg['sell']:
-        trader = XueQiuTrader(
-            xq_account=conf.XQ_ACCOUNT,
-            xq_password=conf.XQ_PASSWORD,
-            xq_portfolio_market=conf.XQ_PORTFOLIO_MARKET,
-            xq_cube_prefix=conf.XQ_CUBES_PREFIX,
-            stock_code=stock_code
-        )
-        trader.sell()
+        trader.sell(stock_code)
 
 
 if __name__ == '__main__':
