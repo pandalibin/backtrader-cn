@@ -8,9 +8,9 @@ import backtradercn.analyzers.drawdown as bad
 import backtradercn.datas.tushare as bdt
 import backtradercn.strategies.utils as bsu
 from backtradercn.settings import settings as conf
-import arctic
 import pandas as pd
 from backtradercn.libs.log import getLogger
+from backtradercn.libs.models import get_or_create_library
 
 logger = getLogger(__name__)
 
@@ -215,12 +215,7 @@ class MATrendStrategy(bt.Strategy):
     @classmethod
     def run_training(cls, stock_id):
         # if library does not exist, create it
-        mongo_host = conf.MONGO_HOST
-        lib_name = conf.STRATEGY_PARAMS_LIBNAME
-        store = arctic.Arctic(mongo_host)
-        if lib_name not in store.list_libraries():
-            store.initialize_library(lib_name)
-        lib = store[lib_name]
+        lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
 
         symbol = cls.name
 
@@ -311,10 +306,7 @@ class MATrendStrategy(bt.Strategy):
         """
 
         # if library does not exist, create it
-        mongo_host = conf.MONGO_HOST
-        lib_name = conf.STRATEGY_PARAMS_LIBNAME
-        store = arctic.Arctic(mongo_host)
-        lib = store[lib_name]
+        lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
         symbol = cls.name
 
         params_list = lib.read(symbol).data

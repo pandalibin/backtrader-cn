@@ -2,10 +2,10 @@
 import math
 
 import pandas as pd
-import arctic
 
 from backtradercn.settings import settings as conf
 from backtradercn.libs.log import getLogger
+from backtradercn.libs.models import get_or_create_library
 
 logger = getLogger(__name__)
 
@@ -62,12 +62,7 @@ class Utils(object):
         :return: None
         """
 
-        mongo_host = conf.MONGO_HOST
-        lib_name = conf.DAILY_STOCK_ALERT_LIBNAME
-        store = arctic.Arctic(mongo_host)
-        if lib_name not in store.list_libraries():
-            store.initialize_library(lib_name)
-        lib = store[lib_name]
+        lib = get_or_create_library(conf.DAILY_STOCK_ALERT_LIBNAME)
 
         df = pd.DataFrame([data], columns=data.keys())
         if symbol in lib.list_symbols():

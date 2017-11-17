@@ -8,7 +8,7 @@ import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
 from backtradercn.libs.log import getLogger
 from backtradercn.settings import settings as conf
-from backtradercn.libs.models import drop_library
+from backtradercn.libs.models import drop_library, create_library
 
 
 logger = getLogger(__name__)
@@ -46,6 +46,8 @@ def main():
 if __name__ == '__main__':
     # drop params library, then re-create it with new data
     drop_library(conf.STRATEGY_PARAMS_LIBNAME)
+    # create empty params library
+    create_library(conf.STRATEGY_PARAMS_LIBNAME)
 
     # train('000651')
     main()

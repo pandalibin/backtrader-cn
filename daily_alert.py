@@ -1,12 +1,11 @@
 import datetime as dt
 import json
 
-import arctic
-
 from backtradercn.libs.log import getLogger
 from backtradercn.libs.wechat import WeChatClient
 from backtradercn.settings import settings as conf
 from backtradercn.libs.xueqiu_trader import XueQiuTrader
+from backtradercn.libs.models import get_library
 
 
 logger = getLogger(__name__)
@@ -18,14 +17,8 @@ def get_market_signal_by_date(date):
         'sell': [],
     }
 
-    store = arctic.Arctic(conf.MONGO_HOST)
-    lib_name = conf.DAILY_STOCK_ALERT_LIBNAME
-
-    if lib_name not in store.list_libraries():
-        logger.warning(f'can not find library: {lib_name} in Arctic')
-    else:
-        lib = store[lib_name]
-
+    lib = get_library(conf.DAILY_STOCK_ALERT_LIBNAME)
+    if lib:
         if date in lib.list_symbols():
             data = lib.read(date).data
             data = data.to_dict('records')
