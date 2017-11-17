@@ -6,11 +6,13 @@ import arctic
 from backtradercn.libs.log import getLogger
 from backtradercn.libs.wechat import WeChatClient
 from backtradercn.settings import settings as conf
+from backtradercn.libs.xueqiu_trader import XueQiuTrader
+
 
 logger = getLogger(__name__)
 
 
-def get_buy_sell_list():
+def get_market_signal_by_date(date):
     msg = {
         'buy': [],
         'sell': [],
@@ -24,20 +26,21 @@ def get_buy_sell_list():
     else:
         lib = store[lib_name]
 
-        symbol = dt.datetime.now().strftime('%Y-%m-%d')
-        df = lib.read(symbol).data
-        data = df.to_dict('records')
-        for item in data:
-            if item['action'] == 'buy':
-                msg['buy'].append(item['stock'])
-            elif item['action'] == 'sell':
-                msg['sell'].append(item['stock'])
+        if date in lib.list_symbols():
+            data = lib.read(date).data
+            data = data.to_dict('records')
+            for item in data:
+                if item['action'] == 'buy':
+                    msg['buy'].append(item['stock'])
+                elif item['action'] == 'sell':
+                    msg['sell'].append(item['stock'])
 
     return msg
 
 
 def send_daily_alert():
-    msg = get_buy_sell_list()
+    date = dt.datetime.now().strftime('%Y-%m-%d')
+    msg = get_market_signal_by_date(date)
 
     # send notification via wechat
     wx_client = WeChatClient({
@@ -50,5 +53,31 @@ def send_daily_alert():
     logger.debug(response)
 
 
+def update_xueqiu_cubes():
+    date = dt.datetime.now().strftime('%Y-%m-%d')
+    msg = get_market_signal_by_date(date)
+
+    for stock_code in msg['buy']:
+        trader = XueQiuTrader(
+            xq_account=conf.XQ_ACCOUNT,
+            xq_password=conf.XQ_PASSWORD,
+            xq_portfolio_market=conf.XQ_PORTFOLIO_MARKET,
+            xq_cube_prefix=conf.XQ_CUBES_PREFIX,
+            stock_code=stock_code
+        )
+        trader.buy()
+
+    for stock_code in msg['sell']:
+        trader = XueQiuTrader(
+            xq_account=conf.XQ_ACCOUNT,
+            xq_password=conf.XQ_PASSWORD,
+            xq_portfolio_market=conf.XQ_PORTFOLIO_MARKET,
+            xq_cube_prefix=conf.XQ_CUBES_PREFIX,
+            stock_code=stock_code
+        )
+        trader.sell()
+
+
 if __name__ == '__main__':
     send_daily_alert()
+    update_xueqiu_cubes()
