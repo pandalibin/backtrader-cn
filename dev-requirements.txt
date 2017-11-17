@@ -1,5 +1,7 @@
 coverage
 codecov
-nose
+pytest
 pylint
 git-pylint-commit-hook
+sphinx
+sphinx_rtd_theme

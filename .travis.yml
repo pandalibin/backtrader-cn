@@ -14,13 +14,9 @@ notifications:
 services:
   - mongodb
 
-# command to install dependencies
-install:
-  - make pip
-
-# command to run tests
+# command to run tests coverage report
 script:
-  - make test
+  - make coverage
 
 after_success:
   - codecov

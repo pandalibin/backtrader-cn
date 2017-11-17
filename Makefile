@@ -1,6 +1,12 @@
+.PHONY: all, pip, install-dev, deploy, test, coverage, webhook, lint, docs, clean
+
+all: test
+
 pip:
 	@echo 'pip install Python modules ...'
 	@grep -Ev '^#' requirements.txt | awk -F'# ' '{print $$1}' | xargs -n 1 -L 1 pip install
+
+install-dev:
 	@pip install -U -r dev-requirements.txt
 
 deploy: clean
@@ -8,9 +14,12 @@ deploy: clean
 	@rsync -raPH -e ssh --delete ./ gvm-2c8g:/data/web/backtrader-cn
 	@rsync -raPH -e ssh --delete ./ gvm-4c8g:/root/web/backtrader-cn
 
-test:
-	coverage erase
-	nosetests --with-coverage --cover-package backtradercn
+test: clean install-dev
+	pytest
+
+coverage: clean install-dev
+	coverage run --source . -m pytest -v
+	coverage report
 
 webhook:
 	@echo "trigger webhooks ..."
@@ -20,9 +29,12 @@ webhook:
 lint:
 	pylint *.py backtradercn
 
+docs: clean install-dev
+	$(MAKE) -C docs html
+
 clean:
 	@echo "make clean ..."
-	@find ./ -name '*.pyc' -exec rm -rf {} \;
-	@find ./ -name '__pycache__' -exec rm -rf {} \; 2>/dev/null
-
-.PHONY: pip, deploy, test, webhook, clean
+	@find ./ -name '*.pyc' -exec rm -f {} +
+	@find ./ -name '*.pyo' -exec rm -f {} +
+	@find ./ -name '*~' -exec rm -f {} +
+	@find ./ -name '__pycache__' -exec rm -rf {} +
