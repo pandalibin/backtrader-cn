@@ -65,4 +65,6 @@ def main():
 
 if __name__ == '__main__':
     # back_test('000651')
+    # back_test('000001')
+
     main()

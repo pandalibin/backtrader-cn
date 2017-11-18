@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # make sure the library exists
     create_library(conf.CN_STOCK_LIBNAME)
 
-    # download_delta_data(['000651'])
+    # download_delta_data(['000651', '000001'])
 
     hs300s = ts.get_hs300s()
     stock_pools = hs300s['code'].tolist() if 'code' in hs300s else []

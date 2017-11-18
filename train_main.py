@@ -50,6 +50,8 @@ if __name__ == '__main__':
     create_library(conf.STRATEGY_PARAMS_LIBNAME)
 
     # train('000651')
+    # train('000001')
+
     main()
 
     # training 时会写数据到 `conf.DAILY_STOCK_ALERT_LIBNAME`

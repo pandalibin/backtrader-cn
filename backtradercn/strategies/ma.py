@@ -243,6 +243,31 @@ class MATrendStrategy(bt.Strategy):
             df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
             lib.append(symbol, df)
 
+
+    @classmethod
+    def run_training(cls, stock_id):
+        # get the data
+        data = cls.get_data(stock_id)
+
+        # train the strategy for this stock_id to get the params
+        params = cls.train_strategy(data, stock_id)
+
+        params_to_save = dict(params=params)
+        df = pd.DataFrame([params_to_save], columns=params_to_save.keys(), index=[stock_id])
+
+        # write to database
+        # if library does not exist, create it
+        lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
+
+        symbol = cls.name
+        if symbol not in lib.list_symbols():
+            lib.write(symbol, df)
+        else:
+            params_df = lib.read(symbol).data
+            params_df.loc[stock_id, 'params'] = params
+            lib.delete(symbol)
+            lib.write(symbol, params_df)
+
     @classmethod
     def run_back_testing(cls, stock_id):
         """
@@ -304,15 +329,11 @@ class MATrendStrategy(bt.Strategy):
         :param stockid:
         :return: dict(like dict(ma_periods=dict(ma_period_s=0, ma_period_l=0, stock_id='0')))
         """
-
-        # if library does not exist, create it
         lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
         symbol = cls.name
 
         params_list = lib.read(symbol).data
-
-        params_record = params_list[params_list['stock_id'] == stock_id]
-        params = params_record['params'][0]
+        params = params_list.loc[stock_id, 'params']
 
         return params
 
@@ -320,9 +341,7 @@ class MATrendStrategy(bt.Strategy):
     def is_stock_in_symbol(cls, stock_id, symbol, lib):
         params_list = lib.read(symbol).data
 
-        params = params_list[params_list['stock_id'] == stock_id]
-
-        if len(params):
+        if stock_id in params_list.index:
             return True
         else:
             return False
