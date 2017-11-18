@@ -214,38 +214,6 @@ class MATrendStrategy(bt.Strategy):
 
     @classmethod
     def run_training(cls, stock_id):
-        # if library does not exist, create it
-        lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
-
-        symbol = cls.name
-
-        # if symbol does not exist in the library
-        if symbol not in lib.list_symbols():
-            # get the data
-            data = cls.get_data(stock_id)
-
-            # train the strategy for this stock_id to get the params
-            params = cls.train_strategy(data, stock_id)
-
-            params_to_save = dict(stock_id=stock_id, params=params)
-            df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
-            lib.write(symbol, df)
-
-        # else if stock_id does not exist in the symbol
-        elif not cls.is_stock_in_symbol(stock_id, symbol, lib):
-            # get the data
-            data = cls.get_data(stock_id)
-
-            # train the strategy for this stock_id to get the params
-            params = cls.train_strategy(data, stock_id)
-
-            params_to_save = dict(stock_id=stock_id, params=params)
-            df = pd.DataFrame([params_to_save], columns=params_to_save.keys())
-            lib.append(symbol, df)
-
-
-    @classmethod
-    def run_training(cls, stock_id):
         # get the data
         data = cls.get_data(stock_id)
 
