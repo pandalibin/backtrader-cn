@@ -216,8 +216,10 @@ class XueQiuClient(WebTrader):
         try:
             cubes_response = json.loads(response.text)
         except JSONDecodeError:
+            log.warning(response.text)
             raise TradeError("解析组合列表失败: %s" % response.text)
         if 'stocks' not in cubes_response:
+            log.warning(cubes_response)
             raise TradeError("获取组合信息失败: %s" % response.text)
         cubes_code_list = [cube['code'] for cube in cubes_response['stocks']]
 

@@ -60,7 +60,6 @@ class XueQiuTrader(object):
             portfolio_market=self.xq_portfolio_market,
             portfolio_code=symbol
         )
-
         user.adjust_weight(stock_code, weight)
 
     def buy(self, stock_code, weight=conf.XQ_DEFAULT_BUY_WEIGHT):
