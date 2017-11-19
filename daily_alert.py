@@ -41,9 +41,12 @@ def send_daily_alert():
         'APP_SECRET': conf.WECHAT_APP_SECRET,
     })
 
-    response = wx_client.send_all_text_message(
-        json.dumps(msg, ensure_ascii=False))
-    logger.debug(response)
+    try:
+        response = wx_client.send_all_text_message(
+            json.dumps(msg, ensure_ascii=False))
+        logger.debug(response)
+    except Exception as e:
+        logger.error(e, exc_info=True)
 
 
 def update_xueqiu_cubes():
