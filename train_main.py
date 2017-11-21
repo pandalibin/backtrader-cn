@@ -14,7 +14,7 @@ logger = getLogger(__name__)
 
 def train(stock):
     """
-    Run back testing tasks via multiprocessing
+    Run training tasks via multiprocessing
     :return: None
     """
 
@@ -26,14 +26,21 @@ def train(stock):
 
 
 def main():
+    """
+    Get all stocks and train params for each stock.
+    :return: None
+    """
+
     stock_pools = models.get_cn_stocks()
-    stock_pools = stock_pools[:5]
     processes = multiprocessing.cpu_count()
     # run subprocess in parallel, the number of processes is: `processes`
     for i in range(len(stock_pools) // processes + 1):
         chunk_start = i * processes
         chunk_end = (i + 1) * processes
         chunk_lst = stock_pools[chunk_start:chunk_end]
+        if not chunk_lst:
+            break
+
         logger.debug(f'back test the chunk list: {chunk_lst}')
         procs = []
         for stock in chunk_lst:

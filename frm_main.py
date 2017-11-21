@@ -46,6 +46,11 @@ def back_test(stock):
 
 
 def main():
+    """
+    Get all stocks and run back test.
+    :return: None
+    """
+
     stock_pools = models.get_cn_stocks()
     processes = multiprocessing.cpu_count()
     # run subprocess in parallel, the number of processes is: `processes`
@@ -53,6 +58,9 @@ def main():
         chunk_start = i * processes
         chunk_end = (i + 1) * processes
         chunk_lst = stock_pools[chunk_start:chunk_end]
+        if not chunk_lst:
+            break
+
         logger.debug(f'back test the chunk list: {chunk_lst}')
         procs = []
         for stock in chunk_lst:
