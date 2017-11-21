@@ -54,7 +54,7 @@ class Utils(object):
         return al_result_dict
 
     @classmethod
-    def write_daily_alert(cls, symbol, data):
+    def write_daily_alert(cls, symbol, stock_id, action):
         """
         write daily stock alert to MongoDB.
         :param symbol: Arctic symbol
@@ -64,6 +64,10 @@ class Utils(object):
 
         lib = get_or_create_library(conf.DAILY_STOCK_ALERT_LIBNAME)
 
+        data = {
+            'stock': stock_id,
+            'action': action
+        }
         df = pd.DataFrame([data], columns=data.keys())
         if symbol in lib.list_symbols():
             lib.append(symbol, df)

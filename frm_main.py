@@ -7,6 +7,7 @@ import tushare as ts
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
 from backtradercn.libs.log import getLogger
+from backtradercn.libs import models
 
 logger = getLogger(__name__)
 
@@ -45,8 +46,7 @@ def back_test(stock):
 
 
 def main():
-    hs300s = ts.get_hs300s()
-    stock_pools = hs300s['code'].tolist() if 'code' in hs300s else []
+    stock_pools = models.get_cn_stocks()
     processes = multiprocessing.cpu_count()
     # run subprocess in parallel, the number of processes is: `processes`
     for i in range(len(stock_pools) // processes + 1):

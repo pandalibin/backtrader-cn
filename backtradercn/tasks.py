@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import backtradercn.strategies.ma as bsm
-import backtradercn.strategies.utils as bsu
 
 
 class Task(object):
@@ -49,4 +47,4 @@ class Task(object):
         return result
 
     def train(self):
-        self._Strategy.run_training(self._stock_id)
+        return self._Strategy.run_training(self._stock_id)

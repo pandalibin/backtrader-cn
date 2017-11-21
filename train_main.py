@@ -2,13 +2,11 @@
 import multiprocessing
 from multiprocessing import Process
 
-import tushare as ts
-
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
 from backtradercn.libs.log import getLogger
 from backtradercn.settings import settings as conf
-from backtradercn.libs.models import drop_library, create_library
+from backtradercn.libs import models
 
 
 logger = getLogger(__name__)
@@ -21,12 +19,15 @@ def train(stock):
     """
 
     task = btasks.Task(bsm.MATrendStrategy, stock)
-    task.train()
+    params = task.train()
+    # write stock params to MongoDB
+    symbol = conf.STRATEGY_PARAMS_MA_SYMBOL
+    models.save_training_params(symbol, params)
 
 
 def main():
-    hs300s = ts.get_hs300s()
-    stock_pools = hs300s['code'].tolist() if 'code' in hs300s else []
+    stock_pools = models.get_cn_stocks()
+    stock_pools = stock_pools[:5]
     processes = multiprocessing.cpu_count()
     # run subprocess in parallel, the number of processes is: `processes`
     for i in range(len(stock_pools) // processes + 1):
@@ -45,9 +46,9 @@ def main():
 
 if __name__ == '__main__':
     # drop params library, then re-create it with new data
-    drop_library(conf.STRATEGY_PARAMS_LIBNAME)
+    models.drop_library(conf.STRATEGY_PARAMS_LIBNAME)
     # create empty params library
-    create_library(conf.STRATEGY_PARAMS_LIBNAME)
+    models.create_library(conf.STRATEGY_PARAMS_LIBNAME)
 
     # train('000651')
     # train('000001')
@@ -55,4 +56,4 @@ if __name__ == '__main__':
     main()
 
     # training 时会写数据到 `conf.DAILY_STOCK_ALERT_LIBNAME`
-    drop_library(conf.DAILY_STOCK_ALERT_LIBNAME)
+    models.drop_library(conf.DAILY_STOCK_ALERT_LIBNAME)

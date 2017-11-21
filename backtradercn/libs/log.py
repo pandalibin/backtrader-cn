@@ -14,26 +14,12 @@ LOG_PATH = os.path.join(
     f'{datetime.now().strftime("%Y%m%d-%H%M%S-%f")}.log'
 )
 
-LOG_LEVEL = conf.LOG_LEVEL
-# overwrite `LOG_LEVEL` via set environment variable
-LOG_LEVEL = os.getenv('LOG_LEVEL', LOG_LEVEL).upper()
-
-LOG_LEVELS = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
-if LOG_LEVEL not in LOG_LEVELS:
-    logging.warning(
-        f'Please set the correct value for `LOG_LEVEL`, current value: {LOG_LEVEL}'
-    )
-    logging.warning('Using the default `LOG_LEVEL`: `DEBUG`')
-    LOG_LEVEL = logging.DEBUG
-else:
-    LOG_LEVEL = logging.getLevelName(LOG_LEVEL)
-
 logging_config = dict(
     version=1,
     formatters={
         'standard': {
             'format':
-            '%(asctime)s %(name)s:%(lineno)d %(levelname)s: %(message)s',
+            '%(asctime)s %(name)s:%(funcName)s:%(lineno)d %(levelname)s: %(message)s',
             'default_msec_format': '%s.%03d',
             'converter': 'time.gmtime'
         }
@@ -42,20 +28,20 @@ logging_config = dict(
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'standard',
-            'level': LOG_LEVEL,
+            'level': conf.LOG_LEVEL,
             'stream': 'ext://sys.stdout'
         },
         'file': {
             'class': 'logging.FileHandler',
             'formatter': 'standard',
-            'level': LOG_LEVEL,
+            'level': conf.LOG_LEVEL,
             'filename': LOG_PATH,
             'mode': 'a',
         }
     },
     root={
         'handlers': ['console', 'file'],
-        'level': LOG_LEVEL,
+        'level': conf.LOG_LEVEL,
     },
 )
 

@@ -8,7 +8,6 @@ import backtradercn.analyzers.drawdown as bad
 import backtradercn.datas.tushare as bdt
 import backtradercn.strategies.utils as bsu
 from backtradercn.settings import settings as conf
-import pandas as pd
 from backtradercn.libs.log import getLogger
 from backtradercn.libs.models import get_or_create_library
 
@@ -23,7 +22,7 @@ class MATrendStrategy(bt.Strategy):
         sma_l(DataFrame): long term moving average.
     """
 
-    name = 'ma_trend'
+    name = conf.STRATEGY_PARAMS_MA_SYMBOL
 
     params = dict(
         ma_periods=dict(
@@ -65,27 +64,27 @@ class MATrendStrategy(bt.Strategy):
                 target_long = 0.8
                 self.order = self.order_target_percent(target=target_long, valid=bt.Order.DAY)
                 if self.datas[0].datetime.date() == dt.datetime.now().date() - dt.timedelta(days=1):
-                    bsu.Utils.log(self.datas[0].datetime.date(),
-                                  'Market Signal: adjust position to %.2f' % target_long)
+                    stock_id = self.params.ma_periods.get('stock_id')
+                    action = 'buy'
+                    bsu.Utils.log(
+                        self.datas[0].datetime.date(),
+                        f'Market Signal: stock {stock_id}, action: {action}, '
+                        f'adjust position to {target_long:.2f}')
                     symbol = dt.datetime.now().strftime('%Y-%m-%d')
-                    data = {
-                        'stock': self.params.ma_periods.get('stock_id'),
-                        'action': 'buy'
-                    }
-                    bsu.Utils.write_daily_alert(symbol, data)
+                    bsu.Utils.write_daily_alert(symbol, stock_id, action)
         else:
             if self.sma_s[0] <= self.sma_l[0]:
                 target_short = 0.0
                 self.order = self.order_target_percent(target=target_short, valid=bt.Order.DAY)
                 if self.datas[0].datetime.date() == dt.datetime.now().date() - dt.timedelta(days=1):
-                    bsu.Utils.log(self.datas[0].datetime.date(),
-                                  'Market Signal: adjust position to %.2f' % target_short)
+                    stock_id = self.params.ma_periods.get('stock_id')
+                    action = 'sell'
+                    bsu.Utils.log(
+                        self.datas[0].datetime.date(),
+                        f'Market Signal: stock {stock_id}, action: {action}, '
+                        f'adjust position to {target_short:.2f}')
                     symbol = dt.datetime.now().strftime('%Y-%m-%d')
-                    data = {
-                        'stock': self.params.ma_periods.get('stock_id'),
-                        'action': 'sell'
-                    }
-                    bsu.Utils.write_daily_alert(symbol, data)
+                    bsu.Utils.write_daily_alert(symbol, stock_id, action)
 
     def notify_order(self, order):
         if order.status in [order.Completed]:
@@ -177,7 +176,7 @@ class MATrendStrategy(bt.Strategy):
 
         cerebro.broker.setcash(bsu.Utils.DEFAULT_CASH)
 
-        logger.debug('=========Starting train the strategy...')
+        logger.debug(f'Starting train the strategy for stock {stock_id}...')
 
         results = cerebro.run()
 
@@ -202,13 +201,13 @@ class MATrendStrategy(bt.Strategy):
         params = best_al_result.get('params')
         ma_periods = params.ma_periods
 
-        logger.debug('Stock %s best parma is ma_period_s: %d, ma_period_l: %d' %
-                     (
-                         ma_periods.get('stock_id'),
-                         ma_periods.get('ma_period_s'),
-                         ma_periods.get('ma_period_l')
-
-                     ))
+        logger.debug(
+            'Stock %s best parma is ma_period_s: %d, ma_period_l: %d' %
+            (
+                ma_periods.get('stock_id'),
+                ma_periods.get('ma_period_s'),
+                ma_periods.get('ma_period_l')
+            ))
 
         return params
 
@@ -220,21 +219,7 @@ class MATrendStrategy(bt.Strategy):
         # train the strategy for this stock_id to get the params
         params = cls.train_strategy(data, stock_id)
 
-        params_to_save = dict(params=params)
-        df = pd.DataFrame([params_to_save], columns=params_to_save.keys(), index=[stock_id])
-
-        # write to database
-        # if library does not exist, create it
-        lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
-
-        symbol = cls.name
-        if symbol not in lib.list_symbols():
-            lib.write(symbol, df)
-        else:
-            params_df = lib.read(symbol).data
-            params_df.loc[stock_id, 'params'] = params
-            lib.delete(symbol)
-            lib.write(symbol, params_df)
+        return params
 
     @classmethod
     def run_back_testing(cls, stock_id):
@@ -264,12 +249,13 @@ class MATrendStrategy(bt.Strategy):
 
         cerebro.broker.set_cash(bsu.Utils.DEFAULT_CASH)
 
-        logger.debug('=========Starting back testing, stock is %s, params is ma_period_s: %d, ma_period_l: %d...' %
-                     (
-                         ma_periods.get('stock_id'),
-                         ma_periods.get('ma_period_s'),
-                         ma_periods.get('ma_period_l')
-                     ))
+        logger.debug(
+            'Starting back testing, stock is %s, params is ma_period_s: %d, ma_period_l: %d...' %
+            (
+                ma_periods.get('stock_id'),
+                ma_periods.get('ma_period_s'),
+                ma_periods.get('ma_period_l')
+            ))
 
         strats = cerebro.run()
         strat = strats[0]

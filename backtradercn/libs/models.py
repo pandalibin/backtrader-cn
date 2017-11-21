@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import arctic
+import pandas as pd
 from backtradercn.libs.log import getLogger
 from backtradercn.settings import settings as conf
 
@@ -83,3 +84,46 @@ def drop_library(lib_name):
         store.delete_library(lib_name)
     else:
         logger.warning(f'can not find library: {lib_name}')
+
+
+def get_cn_stocks():
+    """
+    get all chinese stock ids from arctic library.
+    :return: list, stock id list. e.g.: ['000651', '601988' ...]
+    """
+
+    lib = get_library(conf.CN_STOCK_LIBNAME)
+    return lib.list_symbols()
+
+
+def save_training_params(symbol, params):
+    """
+    save training params to library.
+    :param symbol: str, arctic symbol
+    :param params: dict, e.g.: {"ma_period_s": 1, "ma_period_l": 2, "stock_id": "600909"}
+    :return: None
+    """
+
+    stock_id = params.ma_periods['stock_id']
+    params_to_save = dict(params=params)
+    df = pd.DataFrame([params_to_save], columns=params_to_save.keys(), index=[stock_id])
+
+    # write to database
+    # if library does not exist, create it
+    lib = get_or_create_library(conf.STRATEGY_PARAMS_LIBNAME)
+
+    if lib.has_symbol(symbol):
+        logger.debug(
+            f'symbol: {symbol} already exists, '
+            f'change the params of stock {stock_id}, '
+            f'then delete and write symbol: {symbol}.'
+        )
+        params_df = lib.read(symbol).data
+        params_df.loc[stock_id, 'params'] = params
+        lib.delete(symbol)
+        lib.write(symbol, params_df)
+    else:
+        logger.debug(
+            f'write the params of stock {stock_id} to symbol: {symbol}'
+        )
+        lib.write(symbol, df)
