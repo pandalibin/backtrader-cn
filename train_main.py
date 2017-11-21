@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
-from multiprocessing import Process
+from multiprocessing import Process, Lock
 
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
@@ -12,9 +12,11 @@ from backtradercn.libs import models
 logger = getLogger(__name__)
 
 
-def train(stock):
+def train(stock, lock):
     """
-    Run training tasks via multiprocessing
+    Run training tasks via multiprocessing and save training params to arctic store.
+    :param stock: str, stock code
+    :param lock: the instance of multiprocessing.Lock
     :return: None
     """
 
@@ -22,7 +24,8 @@ def train(stock):
     params = task.train()
     # write stock params to MongoDB
     symbol = conf.STRATEGY_PARAMS_MA_SYMBOL
-    models.save_training_params(symbol, params)
+    with lock:
+        models.save_training_params(symbol, params)
 
 
 def main():
@@ -32,6 +35,7 @@ def main():
     """
 
     stock_pools = models.get_cn_stocks()
+    lock = Lock()
     processes = multiprocessing.cpu_count()
     # run subprocess in parallel, the number of processes is: `processes`
     for i in range(len(stock_pools) // processes + 1):
@@ -44,7 +48,7 @@ def main():
         logger.debug(f'back test the chunk list: {chunk_lst}')
         procs = []
         for stock in chunk_lst:
-            proc = Process(target=train, args=(stock,))
+            proc = Process(target=train, args=(stock, lock))
             procs.append(proc)
             proc.start()
         for proc in procs:
