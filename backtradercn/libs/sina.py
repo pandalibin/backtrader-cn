@@ -147,6 +147,7 @@ def check_error(res_dict):
     检测返回值中是否包含错误的返回码。
     如果返回码提示有错误，抛出一个异常
     """
+    logger.error(json.dumps(res_dict, ensure_ascii=False))
     if "retcode" in res_dict:
         if res_dict['retcode'] == 1005:
             logger.warning("下单失败, 操作过快，即将重试!")
