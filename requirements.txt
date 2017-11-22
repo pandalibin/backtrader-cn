@@ -10,3 +10,4 @@ WeRoBot==1.1.1
 gevent
 easytrader==0.12.3
 demjson==2.2.4
+retrying==1.3.3

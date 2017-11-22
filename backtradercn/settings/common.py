@@ -29,8 +29,8 @@ XQ_CUBES_PREFIX = 'SC'
 XQ_DEFAULT_BUY_WEIGHT = 5
 
 SINA_CONFIG = {
-    "username": os.getenv('WEIBO_USERNAME', ''),
-    "password": os.getenv('WEIBO_PASSWORD', ''),
+    "username": os.getenv('WEIBO_USERNAME', '18628391725'),
+    "password": os.getenv('WEIBO_PASSWORD', 'Gupiao888'),
     "request_headers": {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',
         'Pragma': 'no-cache',

@@ -13,6 +13,7 @@ from pprint import pprint
 
 import demjson
 import requests
+from retrying import retry
 
 from backtradercn.libs.log import get_logger
 from backtradercn.settings import settings as conf
@@ -141,9 +142,29 @@ def jsonp2dict(jsonp):
             raise e
 
 
+def check_error(res_dict):
+    """
+    检测返回值中是否包含错误的返回码。
+    如果返回码提示有错误，抛出一个异常
+    """
+    if "retcode" in res_dict:
+        if res_dict['retcode'] == 1005:
+            logger.warning("下单失败, 操作过快，即将重试!")
+            raise HighFrequencyError("{}: {}".format(res_dict["retcode"], res_dict["msg"]))
+        raise StockMatchError("{}: {}".format(res_dict["retcode"], res_dict["msg"]))
+    raise StockMatchError(json.dumps(res_dict))
+
+
+def retry_if_if_high_frequency(exception):
+    """Return True if we should retry (in this case when it's an IOError), False otherwise"""
+    return isinstance(exception, HighFrequencyError)
+
+
 class OrderStatus(IntEnum):
     # 未成交
     undealt = 0
+    # 成交
+    dealt = 1
     # 已经撤销
     canceled = 2
 
@@ -161,6 +182,11 @@ class StockMatchError(Exception):
 
 class LoginFailedError(StockMatchError):
     """登录失败"""
+    pass
+
+
+class HighFrequencyError(StockMatchError):
+    """操作频率太快"""
     pass
 
 
@@ -273,17 +299,40 @@ class StockMatch(object):
         })
         return jsonp2dict(r.text)
 
+    def _query_orders(self, from_position=0, per_page=10):
+        """
+        查询当日委托
+        :param from_position: 从第几个开始
+        :param per_page: 每页返回个数
+        :return:
+        """
+        url = "http://jiaoyi.sina.com.cn/api/jsonp_v2.php/jsonp_%s_%s/V2_CN_Order_Service.getOrder" % (
+            get_unix_timestamp(), get_random_string())
+        r = self.session.get(
+            url, params={
+                "sid": self.uid,
+                "cid": 10000,
+                "sdate": datetime.strftime(datetime.now(), '%Y-%m-%d'),
+                "edate": "",
+                "from": from_position,  # 请求偏移0
+                "count": per_page,  # 每个返回个数
+                "sort": 1
+            })
+        return jsonp2dict(r.text)
+
+    # fixme:
+    # 调用新浪接口发现返回的是所有委托，请求时的传递的时间参数没有任何作用
     def get_today_orders(self, status=None):
         """
-        获取当日订单
-        :param status: 订单状态: "0": 未成交订单, "2":已撤销订单，默认返回当天所有订单
+        获取当日委托,
+        :param status: 委托状态: "0": 未成交委托, "1": 成交的委托, "2":已撤销委托，默认返回当天所有委托
         :return:
         [Order(og_id='120350', contest_id='10000', sid='5175517774', StockCode='sz000651', StockName='格力电器', SellBuy='0', OrderPrice='47.800', DealAmount='100', OrderAmount='100', IfDealt='2', OrderTime='2017-11-21 17:30:10', mtime='2017-11-21 17:33:40')]
 
         {
             "data": [
                 {
-                    "og_id": "120350",  # 订单ID
+                    "og_id": "120350",  # 委托ID
                     "contest_id": "10000", # 比赛ID
                     "sid": "5175517774",
                     "StockCode": "sz000651",
@@ -293,37 +342,32 @@ class StockMatch(object):
                     "DealAmount": "100",
                     "OrderAmount": "100",
                     "IfDealt": "2", # 成交状态: 0: 未成交，2: 已撤销
-                    "OrderTime": "2017-11-21 17:30:10", # 订单创建时间
+                    "OrderTime": "2017-11-21 17:30:10", # 委托创建时间
                     "mtime": "2017-11-21 17:33:40"
                 },
         """
         if isinstance(status, int):
             status = str(status)
-        url = "http://jiaoyi.sina.com.cn/api/jsonp_v2.php/jsonp_%s_%s/V2_CN_Order_Service.getOrder" % (
-            get_unix_timestamp(), get_random_string())
-        r = self.session.get(
-            url, params={
-                "sid": self.uid,
-                "cid": 10000,
-                "sdate": datetime.strftime(datetime.now(), '%Y-%m-%d'),
-                "edate": "",
-                "from": 0,
-                "count": 10,
-                "sort": 1
-            })
-        json_stocks = jsonp2dict(r.text)
+        from_position = 0
+        per_page = 10
         obj_stocks = []
-        for stock in json_stocks['data']:
-            stock['_class_name'] = 'Order'
-            if status is None:
-                obj_stocks.append(json2obj(json.dumps(stock)))
-            elif stock['IfDealt'] == status:
-                obj_stocks.append(json2obj(json.dumps(stock)))
+        while True:
+            json_stocks = self._query_orders(from_position, per_page)
+            for stock in json_stocks['data']:
+                stock['_class_name'] = 'Order'
+                if status is None:
+                    obj_stocks.append(json2obj(json.dumps(stock)))
+                elif stock['IfDealt'] == status:
+                    obj_stocks.append(json2obj(json.dumps(stock)))
+            if from_position + per_page >= int(json_stocks['count']):
+                break
+            from_position += per_page
+
         return obj_stocks
 
     def cancel_all_orders(self):
         """
-        撤销所有未成交的订单
+        撤销所有未成交的委托
         :return:
         """
         orders = self.get_today_orders(OrderStatus.undealt)
@@ -332,7 +376,7 @@ class StockMatch(object):
 
     def cancel_order(self, order):
         """
-        撤销订单
+        撤销委托
         :param order:
         :return:
         """
@@ -345,9 +389,9 @@ class StockMatch(object):
         })
         res = jsonp2dict(r.text)
         if isinstance(res, bool) and res:
-            logger.info("撤销订单成功。%s" % str(order))
+            logger.info("撤销委托成功。%s" % str(order))
         else:
-            logger.warning("撤销订单失败, 无效的订单号或重复撤销的订单: %s" % str(order))
+            logger.warning("撤销委托失败, 无效的委托号或重复撤销的委托: %s" % str(order))
 
     def search_stocks(self, key, market="cn"):
         """
@@ -387,9 +431,10 @@ class StockMatch(object):
             raise StockMatchError()
 
     # fixme: 该方法暂时只支持买入A股，不支持操作美股和港股
+    @retry(wait_random_min=3000, wait_random_max=5000, retry_on_exception=retry_if_if_high_frequency)
     def buy(self, stock_code, amount=100, price=None):
         """
-        买入股票
+        买入股票, 该方法调用频率不能太快，调用频率不能高于3s/次
         :param stock_code: 股票代码
         :param price: 委托买入股票的价格，默认为股票当前价格
         :param amount: 买入股票数，必须为100的倍数
@@ -422,22 +467,74 @@ class StockMatch(object):
         res = jsonp2dict(r.text)
         if isinstance(res, bool) and res:
             logger.info("下单成功")
-        elif isinstance(res, dict) and res['retcode'] != 0:
-            logger.error("下单失败, 失败原因: %s" % res['msg'])
+        elif isinstance(res, dict):
+            check_error(res)
         else:
             logger.error("未处理的返回情况: %s" % r.text)
 
-    # todo: 解析当前持仓情况
-    def get_stock_hold(self):
-        """获取当前持仓"""
+    def _query_stock_hold(self, from_position=0, per_page=10):
         url = "http://jiaoyi.sina.com.cn/api/jsonp_v2.php/jsonp_%s_%s/V2_CN_Stockhold_Service.getStockhold" % (
             get_unix_timestamp(), get_random_string())
         r = self.session.get(url, params={
             "sid": self.uid,
             "cid": 10000,
-            "count": 1000,
+            "count": per_page,
+            "from": from_position
         })
         return jsonp2dict(r.text)
+
+    def get_stock_hold(self):
+        """
+        获取当前持仓
+
+        {
+            "data": [
+                {
+                    "sg_id": "117989",
+                    "contest_id": "10000",
+                    "sid": "1768615155",
+                    "zs_price": null,
+                    "zy_price": null,
+                    "HoldPercent": 0.6,   # 仓位
+                    "StockCode": "sz000001",
+                    "StockName": "平安银行",
+                    "StockAmount": "200", # 当前持股
+                    "AvailSell": "0",     # 可用股数
+                    "TodayBuy": "200",
+                    "TodaySell": "0",
+                    "T4AvailSell": "0",
+                    "T3AvailSell": "0",
+                    "T2AvailSell": "0",
+                    "T1AvailSell": "0",
+                    "CurrentValue": null,
+                    "cost": "14.920",    # 持仓成本
+                    "StartDate": "2017-11-22 10:24:36",
+                    "EndDate": "0000-00-00 00:00:00",
+                    "mtime": "0000-00-00 00:00:00",
+                    "CostFund": "2983.980", # 持仓花费金额
+                    "newcost": 14.99,    # 最新价格
+                    "dealvalue": "2983.980",
+                    "newvalue": 2998,   # 持股市值
+                    "profit": 14,       # 浮动盈亏
+                    "profitRate": 0.47   # 盈亏比例
+                }
+            ],
+            "count": "1",
+            "status": "2"
+        }
+        """
+        from_position = 0
+        per_page = 10
+        obj_stocks = []
+        while True:
+            json_stocks = self._query_stock_hold(from_position, per_page)
+            for stock in json_stocks['data']:
+                obj_stocks.append(json2obj(json.dumps(stock)))
+            if from_position + per_page >= int(json_stocks['count']):
+                break
+            from_position += per_page
+
+        return obj_stocks
 
     def sell(self, stock_code):
         """
@@ -450,7 +547,10 @@ class StockMatch(object):
 
 if __name__ == "__main__":
     user = StockMatch(conf.SINA_CONFIG["username"], conf.SINA_CONFIG["password"])
-    stock_code = '000651'
-    user.buy(stock_code)
-    for order in user.get_today_orders(OrderStatus.canceled):
+    # stock_code = '000001'
+    # user.buy(stock_code)
+    # pretty_print(user.get_stock_hold())
+    # print(len(user.get_today_orders()))
+    # print(len(user.get_stock_hold()))
+    for order in user.get_today_orders(status=OrderStatus.undealt):
         pretty_print_namedtuple(order)
