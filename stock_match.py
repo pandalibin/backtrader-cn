@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from backtradercn.settings import settings as conf
 from backtradercn.libs.sina import StockMatch
 from daily_alert import get_market_signal_by_date
+from backtradercn.libs.log import get_logger
+
+logger = get_logger(__name__)
 
 
 def update_sina_stock_match():
@@ -17,6 +20,8 @@ def update_sina_stock_match():
         user.buy(stock_code)
         # 经过测试，每隔3S进行一次买入操作的频率最合适
         time.sleep(3)
+    else:
+        logger.info("没有股票需要买入")
 
 
 if __name__ == '__main__':
