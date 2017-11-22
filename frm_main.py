@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
-from multiprocessing import Process
-
-import tushare as ts
 
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
@@ -45,34 +42,20 @@ def back_test(stock):
         )
 
 
-def main():
+def main(stock_pools):
     """
     Get all stocks and run back test.
+    :param stock_pools: list, the stock code list.
     :return: None
     """
 
-    stock_pools = models.get_cn_stocks()
-    processes = multiprocessing.cpu_count()
-    # run subprocess in parallel, the number of processes is: `processes`
-    for i in range(len(stock_pools) // processes + 1):
-        chunk_start = i * processes
-        chunk_end = (i + 1) * processes
-        chunk_lst = stock_pools[chunk_start:chunk_end]
-        if not chunk_lst:
-            break
-
-        logger.debug(f'back test the chunk list: {chunk_lst}')
-        procs = []
-        for stock in chunk_lst:
-            proc = Process(target=back_test, args=(stock,))
-            procs.append(proc)
-            proc.start()
-        for proc in procs:
-            proc.join()
+    pool = multiprocessing.Pool()
+    for stock in stock_pools:
+        pool.apply_async(back_test, args=(stock, ))
+    pool.close()
+    pool.join()
 
 
 if __name__ == '__main__':
-    # back_test('000651')
-    # back_test('000001')
-
-    main()
+    cn_stocks = models.get_cn_stocks()
+    main(cn_stocks)
