@@ -18,7 +18,7 @@ test: clean install-dev
 	pytest
 
 coverage: clean install-dev
-	coverage run --source . -m pytest -v
+	coverage run --source backtradercn -m pytest -v
 	coverage report
 
 webhook:
