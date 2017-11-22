@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.settings import settings as conf
 from backtradercn.libs import models
 
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def train(stock):

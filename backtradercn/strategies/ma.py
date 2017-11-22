@@ -8,10 +8,10 @@ import backtradercn.analyzers.drawdown as bad
 import backtradercn.datas.tushare as bdt
 import backtradercn.strategies.utils as bsu
 from backtradercn.settings import settings as conf
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.libs.models import get_or_create_library
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class MATrendStrategy(bt.Strategy):

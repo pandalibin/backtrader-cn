@@ -3,10 +3,10 @@ import multiprocessing
 
 import backtradercn.strategies.ma as bsm
 import backtradercn.tasks as btasks
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.libs import models
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def back_test(stock):

@@ -6,7 +6,7 @@ from logging.config import dictConfig
 from backtradercn.settings import settings as conf
 
 
-__all__ = ['getLogger']
+__all__ = ['get_logger']
 
 
 LOG_PATH = os.path.join(
@@ -53,5 +53,5 @@ for h in logging.getLogger().handlers:
     h.formatter.default_msec_format = '%s.%03d'
 
 
-def getLogger(name=None):
+def get_logger(name=None):
     return logging.getLogger(name)

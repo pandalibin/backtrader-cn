@@ -14,10 +14,10 @@ from pprint import pprint
 import demjson
 import requests
 
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.settings import settings as conf
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def enable_debug_requests():

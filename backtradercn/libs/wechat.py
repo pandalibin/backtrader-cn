@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from backtradercn.settings import settings as conf
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from werobot.client import Client
 
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class WeChatClient(Client):

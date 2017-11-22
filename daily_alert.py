@@ -1,14 +1,14 @@
 import datetime as dt
 import json
 
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.libs.wechat import WeChatClient
 from backtradercn.settings import settings as conf
 from backtradercn.libs.xueqiu_trader import XueQiuTrader
 from backtradercn.libs.models import get_library
 
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def get_market_signal_by_date(date):

@@ -3,13 +3,13 @@ import gevent.pool
 import gevent.monkey
 import tushare as ts
 import backtradercn.datas.tushare as bdt
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.libs import models
 from backtradercn.settings import settings as conf
 
 
 gevent.monkey.patch_all()
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def download_delta_data(stocks, pool_size=40):

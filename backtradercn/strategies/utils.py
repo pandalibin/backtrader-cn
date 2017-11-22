@@ -4,10 +4,10 @@ import math
 import pandas as pd
 
 from backtradercn.settings import settings as conf
-from backtradercn.libs.log import getLogger
+from backtradercn.libs.log import get_logger
 from backtradercn.libs.models import get_or_create_library
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Utils(object):
