@@ -1,10 +1,11 @@
 import unittest
-import backtradercn.datas.tushare as bdt
-from backtradercn.settings import settings as conf
 import unittest.mock as um
-import pandas as pd
 import datetime as dt
-import arctic
+import pandas as pd
+import backtradercn.datas.tushare as bdt
+
+from backtradercn.settings import settings as conf
+from backtradercn.libs import models
 
 
 class TsHisDataTestCase(unittest.TestCase):
@@ -23,12 +24,12 @@ class TsHisDataTestCase(unittest.TestCase):
         coll_name = '000651'
         ts_his_data = bdt.TsHisData(coll_name)
 
-        store = arctic.Arctic('localhost')
-        store.delete_library(conf.CN_STOCK_LIBNAME)
+        lib = models.get_library(conf.CN_STOCK_LIBNAME)
+        lib.delete(coll_name)
 
         ts_his_data.download_delta_data()
 
-        self.assertEqual(len(ts_his_data._library.list_symbols()), 0)
+        self.assertFalse(lib.has_symbol(coll_name))
 
     @um.patch('tushare.get_hist_data')
     def _test_download_delta_data_initial(self, mock_get_hist_data):
@@ -54,8 +55,8 @@ class TsHisDataTestCase(unittest.TestCase):
         coll_name = '000651'
         ts_his_data = bdt.TsHisData(coll_name)
 
-        store = arctic.Arctic('localhost')
-        store.delete_library(conf.CN_STOCK_LIBNAME)
+        lib = models.get_library(conf.CN_STOCK_LIBNAME)
+        lib.delete(coll_name)
 
         ts_his_data.download_delta_data()
 
@@ -109,5 +110,5 @@ class TsHisDataTestCase(unittest.TestCase):
         self.assertEqual(len(hist_data_000651), 3)
         self.assertEqual(dt.datetime.strftime(hist_data_000651.index[-1], '%Y-%m-%d'),
                          dt.datetime.strftime(yesterday, '%Y-%m-%d'))
-        store = arctic.Arctic('localhost')
-        store.delete_library(conf.CN_STOCK_LIBNAME)
+        lib = models.get_library(conf.CN_STOCK_LIBNAME)
+        lib.delete(coll_name)
