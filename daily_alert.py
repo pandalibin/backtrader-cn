@@ -81,6 +81,5 @@ def update_sina_stock_match():
 
 
 if __name__ == '__main__':
-    # send_daily_alert()
-    # update_xueqiu_cubes()
+    send_daily_alert()
     update_sina_stock_match()
